@@ -1,0 +1,17 @@
+.item {
+    display: flex;
+    flex-direction: column;
+    border: 1px black solid;
+    margin: 10px 20px;
+    width: 200px;
+    cursor: pointer;
+}
+
+.item-pic {
+    width: 200px;
+    height: 250px;
+}
+
+.item-summary {
+    margin: 0px 5px;
+}
