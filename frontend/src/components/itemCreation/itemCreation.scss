@@ -1,0 +1,30 @@
+.item-creation-steps {
+    flex-grow: 2;
+    cursor: default;
+}
+
+.search-items {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    width: 250px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.item-creation-img {
+    border: #b7b7b7 1px solid;
+    border-radius: 3px;
+}
+
+.search-item-title {
+    margin-left: 10px;
+}
+
+.has-width-250 {
+    width: 250px;
+}

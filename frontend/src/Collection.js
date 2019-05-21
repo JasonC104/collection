@@ -1,18 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Item from './components/Item';
-import './collection.scss';
-import ItemCreationModal from './components/ItemCreationModal';
+import './styles/collection.scss';
+import ItemCreationModal from './components/itemCreation/ItemCreationModal';
 
 class Collection extends Component {
 	constructor(props) {
 		super(props);
-		const items = [
-			// { title: 'Uncharted 4', platform: 'PS4', cost: 20, rating: '5/5', imageHash: 'zvkdiv2dze8tcit6bzza' },
-			// { title: 'God of War', platform: 'PS4', cost: 60, rating: '4/5', imageHash: 'cintjlnx6o8qyqtcnajl' },
-			// { title: 'Horizon Zero Dawn', platform: 'PS4', cost: 20, rating: '3/5', imageHash: 'cintjlnx6o8qyqtcnajl' },
-			// { title: 'Persona 5', platform: 'PS4', cost: 50, rating: '4/5', imageHash: 'cintjlnx6o8qyqtcnajl' }
-		];
 		this.state = { items, showModal: false };
 	}
 
@@ -35,18 +29,13 @@ class Collection extends Component {
 	}
 
 	createItem(newItem) {
-		axios.post('http://localhost:3001/api/items', newItem).then(_ => this.getItems());
-
-		// const items = this.state.items;
-		// items.push(newItem);
-		// this.setState({ items });
+		axios.post('http://localhost:3001/api/items', newItem)
+			.then(() => this.getItems());
 	}
 
 	deleteItem(item) {
-		const index = this.state.items.findIndex(i => i.title === item.title);
-		const items = this.state.items;
-		items.splice(index, 1);
-		this.setState({ items });
+		axios.delete('http://localhost:3001/api/items', { data: { id: item.id } })
+			.then(() => this.getItems());
 	}
 
 	render() {

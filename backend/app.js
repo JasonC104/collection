@@ -85,6 +85,7 @@ router.get('/search/:title', (req, res) => {
 router.delete('/items', (req, res) => {
 	ItemModel.findOneAndDelete({ _id: req.body.id }, err => {
 		if (err) return res.send(err);
+		console.log(`deleted ${req.body.id}`);
 		return res.json({
 			success: true
 		});

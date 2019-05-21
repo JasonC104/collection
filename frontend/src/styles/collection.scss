@@ -1,5 +1,7 @@
 /* @import "../node_modules/bulma/bulma.sass"; */
 @import "~bulma/bulma";
+@import "./bulma-steps.min.css";
+@import "~bulma-tooltip/src/sass/index.sass";
 
 .is-flex-end {
     justify-content: flex-end;
