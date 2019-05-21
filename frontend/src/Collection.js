@@ -7,7 +7,7 @@ import ItemCreationModal from './components/itemCreation/ItemCreationModal';
 class Collection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { items, showModal: false };
+		this.state = { items: [], showModal: false };
 	}
 
 	componentDidMount() {
