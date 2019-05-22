@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const ItemModel = require('./data');
 const IgdbApi = require('./igdb');
+const csvParser = require('./csv-parser');
 
 const API_PORT = 3001;
 const app = express();
@@ -43,7 +44,7 @@ router.get('/items', (req, res) => {
 	});
 });
 
-router.get('/search/:title', (req, res) => {
+router.get('/items/search/:title', (req, res) => {
 	IgdbApi.searchGame(req.params.title).then(response => {
 		const data = [];
 		response.data.sort((a, b) => b.popularity - a.popularity).forEach(e => {
@@ -59,6 +60,16 @@ router.get('/search/:title', (req, res) => {
 	}).catch(err => {
 		console.log(err);
 		return res.json(err);
+	});
+});
+
+router.get('/items/csv', (req, res) => {
+	ItemModel.find((err, data) => {
+		if (err) return res.json({ error: err });
+
+		const csv = csvParser.itemDataToCsv(data);
+		res.attachment('item-data.csv');
+		return res.status(200).send(csv);
 	});
 });
 
