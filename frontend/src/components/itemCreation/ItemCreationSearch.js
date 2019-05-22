@@ -17,18 +17,23 @@ function ItemCreationSearch(props) {
         });
     }
 
+    const searchEvent = e => {
+        e.preventDefault();
+        props.search();
+    }
+
     return (
         <div style={{ width: '100%' }}>
             <FormElement label='Title'>
-                <div className='field has-addons'>
+                <form className='field has-addons' onSubmit={e => searchEvent(e)}>
                     <div className='control' style={{ width: '70%' }}>
                         <input name='title' className='input' type='text' placeholder='Name'
                             value={item.title} autoComplete="off" onChange={(e) => props.handleChange(e)} />
                     </div>
                     <div className='control'>
-                        <div className='button is-info' onClick={() => props.search()}>Search</div>
+                        <div className='button is-info' type='submit' onClick={e => searchEvent(e)}>Search</div>
                     </div>
-                </div>
+                </form>
             </FormElement>
             <div className='search-items'>
                 {searchItems}
