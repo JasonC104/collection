@@ -1,8 +1,8 @@
 import React from 'react';
-import axios from 'axios';
 import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
 import Steps from '../Steps';
+import * as ItemApi from '../../api/itemApi';
 import './itemCreation.scss';
 
 class ItemCreationModal extends React.Component {
@@ -56,9 +56,9 @@ class ItemCreationModal extends React.Component {
 	}
 
 	searchItem() {
-		axios.get(`http://localhost:3001/api/search/${this.state.item.title}`).then(response => {
-			this.setState({ searchResults: response.data });
-		}).catch(err => console.log(err));
+		ItemApi.searchItem(this.state.item.title, searchResults => {
+			this.setState({ searchResults })
+		});
 	}
 
 	render() {
