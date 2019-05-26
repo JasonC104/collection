@@ -1,0 +1,36 @@
+.toolbar {
+    margin: 30px;
+}
+
+.dropdown-column {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+
+.dropdown-option {
+    display: flex !important;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.dropdown-item:hover {
+    background-color: lightgrey;
+    color: black;
+}
+
+.dropdown-icon {
+    cursor: pointer;
+    margin: 0px 2px;
+}
+
+.filter-dropdown {
+    padding-left: 10px;
+    width: 200px;
+}
+
+.sort-dropdown {
+    border-left: 1px solid lightgrey;
+    padding-left: 10px;
+    margin-left: 10px;
+}

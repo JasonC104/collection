@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import Item from './components/Item';
 import ItemCreationModal from './components/itemCreation/ItemCreationModal';
+import Toolbar from './components/toolbar/Toolbar'
 import * as ItemApi from './api/itemApi';
 import './styles/collection.scss';
 
 class Collection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { items: [], showModal: false };
+		this.state = { items: [], itemRequirements: {}, showModal: false };
 		this.getItems = this.getItems.bind(this);
 	}
 
@@ -16,9 +17,18 @@ class Collection extends Component {
 	}
 
 	getItems() {
-		ItemApi.getItems(response => {
+		ItemApi.getItems(this.state.itemRequirements, response => {
 			this.setState({ items: response.data });
 		})
+	}
+
+	changeItemRequirements(newRequirements) {
+		this.setState({
+			itemRequirements: {
+				...this.state.itemRequirements,
+				...newRequirements
+			}
+		}, () => this.getItems());
 	}
 
 	showModal() {
@@ -39,7 +49,17 @@ class Collection extends Component {
 
 		return (
 			<div className='main'>
-				<h1 className='title'>Collection</h1>
+				<div className='header'>
+					<h1 className='title is-marginless'>Collection</h1>
+					<div className="tabs is-boxed">
+						<ul>
+							<li><a href='/'>Dashboard</a></li>
+							<li className="is-active"><a href='/'>Games</a></li>
+							<li><a href='/'>Movies</a></li>
+						</ul>
+					</div>
+				</div>
+				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
 				<div className='item-group'>{itemElements}</div>
 				<div className='new-item-btn button' onClick={() => this.showModal()}>
 					<span className='icon'>

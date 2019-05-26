@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export function getItems(callback) {
-    axios.get('http://localhost:3001/api/items')
+export function getItems(requirements, callback) {
+    axios.get('http://localhost:3001/api/items', { params: requirements })
         .then(response => callback(response.data))
         .catch(err => console.log(err));
 };
@@ -19,7 +19,7 @@ export function deleteItem(id, callback) {
 }
 
 export function searchItem(title, callback) {
-    axios.get(`http://localhost:3001/api/items/search/${title}`)
+    axios.get(`http://localhost:3001/api/search/${title}`)
         .then(response => callback(response.data))
         .catch(err => console.log(err));
 }

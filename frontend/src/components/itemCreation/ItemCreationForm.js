@@ -6,9 +6,9 @@ function ItemCreationForm(props) {
     const item = props.item;
     const platformOptions = props.platforms.map(p => <option key={p}>{p}</option>);
     return (
-        <div className='is-flex'>
+        <div className='is-flex' style={{ width: '100%' }}>
             <img className='modal-pic' src={props.imageUrl} alt={item.title} />
-            <div style={{ marginLeft: '10px' }}>
+            <div style={{ marginLeft: '10px', width: '100%' }}>
                 <h1 className='title'>{item.title}</h1>
 
                 <FormElement label='Platform'>

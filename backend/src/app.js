@@ -23,28 +23,70 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+function generateItemViewModel(e) {
+	return {
+		id: e._id,
+		title: e.title,
+		platform: e.platform,
+		cost: e.cost,
+		rating: e.rating,
+		imageUrl: `https://images.igdb.com/igdb/image/upload/t_720p/${e.imageHash}.jpg`
+	};
+}
+
 // this is our get method
 // this method fetches all available data in our database
-router.get('/items', (req, res) => {
-	// TODO sort by createdAt field
-	ItemModel.find((err, data) => {
-		if (err) return res.json({ error: err });
+router.get('/items', async (req, res) => {
+	const query = req.query;
+	const requirements = {};
+	let sortRequirements = { createdAt: -1 };
 
-		const result = data.map(e => {
-			return {
-				id: e._id,
-				title: e.title,
-				platform: e.platform,
-				cost: e.cost,
-				rating: e.rating,
-				imageUrl: `https://images.igdb.com/igdb/image/upload/t_720p/${e.imageHash}.jpg`
-			};
+	// search
+	if (query.search) {
+		requirements.title = new RegExp(query.search, 'i');
+	}
+
+	// filter
+	if (query.platform && Array.isArray(query.platform)) {
+		let platforms = [];
+		await ItemModel.distinct('platform', (err, data) => {
+			if (err) return res.json({ error: err });
+			platforms = data;
 		});
-		return res.json({ data: result });
-	});
+		// if query.platform is a valid list of platforms
+		const hasInvalidPlatform = query.platform.some(p => platforms.indexOf(p) === -1);
+		if (!hasInvalidPlatform) {
+			requirements.platform = { $in: query.platform };
+		}
+	}
+
+	// sort
+	if (query.sort) {
+		const order = (query.order === 'desc') ? -1 : 1;
+		switch (query.sort) {
+			case 'date':
+				sortRequirements = { createdAt: order };
+				break;
+			case 'title':
+				sortRequirements = { title: order };
+				break;
+			case 'rating':
+				sortRequirements = { rating: order };
+				break;
+		}
+	}
+
+	ItemModel.find(requirements)
+		.sort(sortRequirements)
+		.exec((err, data) => {
+			if (err) return res.json({ error: err });
+
+			const result = data.map(e => generateItemViewModel(e));
+			return res.json({ data: result });
+		});
 });
 
-router.get('/items/search/:title', (req, res) => {
+router.get('/search/:title', (req, res) => {
 	IgdbApi.searchGame(req.params.title).then(response => {
 		const data = [];
 		response.data.sort((a, b) => b.popularity - a.popularity).forEach(e => {
@@ -64,12 +106,12 @@ router.get('/items/search/:title', (req, res) => {
 });
 
 router.get('/items/csv', (req, res) => {
-	ItemModel.find((err, data) => {
+	ItemModel.find().sort({ createdAt: 1 }).exec((err, data) => {
 		if (err) return res.json({ error: err });
 
 		const csv = csvParser.itemDataToCsv(data);
 		res.attachment('item-data.csv');
-		return res.status(200).send(csv);
+		return res.status(200).type('text/csv').send(csv);
 	});
 });
 
@@ -97,9 +139,7 @@ router.delete('/items', (req, res) => {
 	ItemModel.findOneAndDelete({ _id: req.body.id }, err => {
 		if (err) return res.send(err);
 		console.log(`deleted ${req.body.id}`);
-		return res.json({
-			success: true
-		});
+		return res.json({ success: true });
 	});
 });
 
