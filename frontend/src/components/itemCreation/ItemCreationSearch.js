@@ -1,5 +1,5 @@
 import React from 'react';
-import FormElement from '../FormElement';
+import { FormElement } from '../../elements';
 import './itemCreation.scss';
 
 function ItemCreationSearch(props) {

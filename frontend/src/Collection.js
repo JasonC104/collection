@@ -3,6 +3,7 @@ import Item from './components/Item';
 import ItemCreationModal from './components/itemCreation/ItemCreationModal';
 import Toolbar from './components/toolbar/Toolbar'
 import * as ItemApi from './api/itemApi';
+import { Icon } from './elements';
 import './styles/collection.scss';
 
 class Collection extends Component {
@@ -62,9 +63,7 @@ class Collection extends Component {
 				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
 				<div className='item-group'>{itemElements}</div>
 				<div className='new-item-btn button' onClick={() => this.showModal()}>
-					<span className='icon'>
-						<i className='fas fa-plus fa-lg' />
-					</span>
+					<Icon icon='fas fa-plus fa-lg'/>
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, this.getItems)}
 					closeModal={() => this.closeModal()} />

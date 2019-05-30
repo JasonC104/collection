@@ -1,5 +1,5 @@
 import React from 'react';
-import * as ItemApi from '../../api/itemApi';
+import { Icon } from '../../elements';
 import './styles.scss';
 
 class Toolbar extends React.Component {
@@ -60,12 +60,10 @@ class Toolbar extends React.Component {
         const sortOptions = ['date', 'title', 'rating'].map(option => {
             return (
                 <div key={option} className="dropdown-option" >
-                    <span className="dropdown-icon icon is-small" onClick={() => this.handleSort(option, 'asc')}>
-                        <i className="fas fa-angle-up fa-lg" />
-                    </span>
-                    <span className="dropdown-icon icon is-small" onClick={() => this.handleSort(option, 'desc')}>
-                        <i className="fas fa-angle-down fa-lg" />
-                    </span>
+                    <Icon className='dropdown-icon is-small' icon='fas fa-angle-up fa-lg'
+                        onClick={() => this.handleSort(option, 'asc')} />
+                    <Icon className='dropdown-icon is-small' icon='fas fa-angle-down fa-lg'
+                        onClick={() => this.handleSort(option, 'desc')} />
                     <p>{option}</p>
                 </div>
             )
@@ -93,9 +91,7 @@ class Toolbar extends React.Component {
                         <div className="dropdown-trigger">
                             <button className="button">
                                 <span>Filter/Sort</span>
-                                <span className="icon is-small">
-                                    <i className="fas fa-angle-down" />
-                                </span>
+                                <Icon className="is-small" icon='fas fa-angle-down' />
                             </button>
                         </div>
                         <div className="dropdown-menu" id="dropdown-menu" role="menu">

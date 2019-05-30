@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from '../elements';
 import './styles/itemModal.scss';
 
 class ItemModal extends React.Component {
@@ -40,15 +41,11 @@ class ItemModal extends React.Component {
 					</section>
 					<footer className='modal-card-foot is-flex-end'>
 						<button className='button is-success'>
-							<span className='icon'>
-								<i className='fas fa-edit' />
-							</span>
+							<Icon icon='fas fa-edit'/>
 						</button>
 						<button className={'button is-danger is-tooltip-left ' + activeTooltip}
 							data-tooltip='Click again to confirm delete' onClick={() => this.toggleDelete()}>
-							<span className='icon'>
-								<i className='fas fa-trash' />
-							</span>
+							<Icon icon='fas fa-trash'/>
 						</button>
 					</footer>
 				</div>
