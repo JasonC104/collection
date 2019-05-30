@@ -1,7 +1,7 @@
 import React from 'react';
 import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
-import Steps from '../Steps';
+import { Icon, Steps } from '../../elements';
 import * as ItemApi from '../../api/itemApi';
 import './itemCreation.scss';
 
@@ -10,7 +10,17 @@ class ItemCreationModal extends React.Component {
 		super(props);
 		this.initialState = {
 			step: 0,
-			item: { igdbId: 0, title: '', platform: '', cost: '', rating: '' },
+			item: {
+				igdbId: 0,
+				title: '',
+				platform: '',
+				cost: '',
+				purchaseDate: null,
+				type: '',
+				rating: 0,
+				completed: false,
+				gift: false
+			},
 			imageUrl: '',
 			platforms: [],
 			searchResults: []
@@ -50,6 +60,8 @@ class ItemCreationModal extends React.Component {
 	createItem() {
 		const newItem = { ...this.state.item };
 		newItem.cost = Number(newItem.cost);
+		newItem.completed = Boolean(newItem.completed);
+		newItem.gift = Boolean(newItem.gift);
 		this.props.createItem(newItem);
 		this.props.closeModal();
 		this.setState(this.initialState);
@@ -75,16 +87,14 @@ class ItemCreationModal extends React.Component {
 		} else {
 			modalBody = <ItemCreationForm item={item} imageUrl={this.state.imageUrl} platforms={this.state.platforms}
 				handleChange={(e) => this.handleChange(e)} />;
-			const disableSave = Object.values(this.state.item).some(value => value == false);
+			const enableSave = validateItem(item);
 			modalButtons = (
 				<div>
 					<button className='button is-danger' onClick={() => this.goToPreviousStep()}>
 						Back
 					</button>
-					<button className='button is-success' disabled={disableSave} onClick={() => this.createItem()}>
-						<span className='icon'>
-							<i className='fas fa-save' />
-						</span>
+					<button className='button is-success' disabled={!enableSave} onClick={() => this.createItem()}>
+						<Icon icon='fas fa-save'/>
 					</button>
 				</div>
 			);
@@ -111,6 +121,16 @@ class ItemCreationModal extends React.Component {
 			</div>
 		);
 	}
+}
+
+function validateItem(item) {
+	if (item.title === '') return false;
+	if (item.platform === '') return false;
+	if (item.type === '') return false;
+	if (item.cost === '' || isNaN(item.cost)) return false;
+	if (item.purchaseDate === null) return false;
+	if (item.igdbId === 0) return false;
+	return true;
 }
 
 export default ItemCreationModal;

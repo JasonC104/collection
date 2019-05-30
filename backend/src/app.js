@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const ItemModel = require('./data');
+const models = require('./data');
 const IgdbApi = require('./igdb');
 const csvParser = require('./csv-parser');
 
@@ -24,13 +24,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 function generateItemViewModel(e) {
+	const purchaseDate = e.purchaseDate.toLocaleDateString(
+		'en-US', { year: 'numeric', month: 'short', day: '2-digit' }
+	);
 	return {
 		id: e._id,
 		title: e.title,
 		platform: e.platform,
 		cost: e.cost,
+		purchaseDate,
+		type: e.type,
 		rating: e.rating,
-		imageUrl: `https://images.igdb.com/igdb/image/upload/t_720p/${e.imageHash}.jpg`
+		completed: e.completed,
+		gift: e.gift,
+		links: e.links,
+		igdbId: e.igdb.id,
+		imageUrl: `https://images.igdb.com/igdb/image/upload/t_720p/${e.igdb.imageHash}.jpg`
 	};
 }
 
@@ -49,7 +58,7 @@ router.get('/items', async (req, res) => {
 	// filter
 	if (query.platform && Array.isArray(query.platform)) {
 		let platforms = [];
-		await ItemModel.distinct('platform', (err, data) => {
+		await models.Game.distinct('platform', (err, data) => {
 			if (err) return res.json({ error: err });
 			platforms = data;
 		});
@@ -76,7 +85,7 @@ router.get('/items', async (req, res) => {
 		}
 	}
 
-	ItemModel.find(requirements)
+	models.Game.find(requirements)
 		.sort(sortRequirements)
 		.exec((err, data) => {
 			if (err) return res.json({ error: err });
@@ -106,7 +115,7 @@ router.get('/search/:title', (req, res) => {
 });
 
 router.get('/items/csv', (req, res) => {
-	ItemModel.find().sort({ createdAt: 1 }).exec((err, data) => {
+	models.Game.find().sort({ createdAt: 1 }).exec((err, data) => {
 		if (err) return res.json({ error: err });
 
 		const csv = csvParser.itemDataToCsv(data);
@@ -122,7 +131,7 @@ router.get('/items/csv', (req, res) => {
 // 		id,
 // 		update
 // 	} = req.body;
-// 	ItemModel.findOneAndUpdate(id, update, err => {
+// 	models.Game.findOneAndUpdate(id, update, err => {
 // 		if (err) return res.json({
 // 			success: false,
 // 			error: err
@@ -136,7 +145,7 @@ router.get('/items/csv', (req, res) => {
 // this is our delete method
 // this method removes existing data in our database
 router.delete('/items', (req, res) => {
-	ItemModel.findOneAndDelete({ _id: req.body.id }, err => {
+	models.Game.findOneAndDelete({ _id: req.body.id }, err => {
 		if (err) return res.send(err);
 		console.log(`deleted ${req.body.id}`);
 		return res.json({ success: true });
@@ -145,30 +154,39 @@ router.delete('/items', (req, res) => {
 
 // this is our create method
 // this method adds new data in our database
-router.post('/items', (req, res) => {
+router.post('/items', async (req, res) => {
 	const item = req.body;
-	IgdbApi.getGameCover(item.igdbId).then(response => {
-		const data = {
-			title: item.title,
-			platform: item.platform,
-			cost: item.cost,
-			rating: item.rating,
-			igdbId: item.igdbId,
-			imageHash: response.data[0].cover.image_id
-		};
-
-		(new ItemModel(data)).save((err, doc) => {
-			if (err) {
-				console.log(err);
-				return res.json({ error: err });
-			}
-			console.log(doc);
-			return res.json({ success: true });
-		});
-
+	let imageHash;
+	await IgdbApi.getGameCover(item.igdbId).then(response => {
+		imageHash = response.data[0].cover.image_id
 	}).catch(err => {
 		console.log(err);
 		return res.json(err);
+	});
+
+	const game = new models.Game({
+		title: item.title,
+		platform: item.platform,
+		cost: item.cost,
+		purchaseDate: item.purchaseDate,
+		type: item.type,
+		completed: item.completed,
+		gift: item.gift,
+		rating: item.rating,
+		links: item.links,
+		igdb: {
+			id: item.igdbId,
+			imageHash
+		}
+	});
+
+	game.save((err, doc) => {
+		if (err) {
+			console.log(err);
+			return res.json({ error: err });
+		}
+		console.log(doc);
+		return res.json({ success: true });
 	});
 });
 

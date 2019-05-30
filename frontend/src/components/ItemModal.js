@@ -1,4 +1,5 @@
 import React from 'react';
+import ItemModalSummary from './ItemModalSummary';
 import { Icon } from '../elements';
 import './styles/itemModal.scss';
 
@@ -32,12 +33,7 @@ class ItemModal extends React.Component {
 						<button className='delete' onClick={() => props.closeModal()} />
 					</header>
 					<section className='modal-card-body is-flex'>
-						<img className='modal-pic' src={item.imageUrl} alt={item.title} />
-						<div className='modal-summary'>
-							<p>{item.platform}</p>
-							<p>${item.cost}</p>
-							<p>{item.rating} stars</p>
-						</div>
+						<ItemModalSummary item={item}/>
 					</section>
 					<footer className='modal-card-foot is-flex-end'>
 						<button className='button is-success'>

@@ -15,4 +15,27 @@ const ItemSchema = new Schema(
 	}
 );
 
-module.exports = mongoose.model('Item', ItemSchema);
+const GameSchema = new Schema(
+	{
+		title: String,
+		platform: String,
+		cost: Number,
+		purchaseDate: Date,
+		type: String,
+		rating: Number,
+		completed: Boolean,
+		gift: Boolean,
+		links: [String],
+		igdb: {
+			id: Number,
+			imageHash: String
+		}
+	},
+	{
+		timestamps: true
+	}
+);
+
+module.exports = {
+	Game: mongoose.model('Game', GameSchema)
+};

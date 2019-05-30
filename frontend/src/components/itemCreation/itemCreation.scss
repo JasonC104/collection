@@ -1,3 +1,5 @@
+@import "~react-datepicker/dist/react-datepicker.css";
+
 .item-creation-steps {
     flex-grow: 2;
     cursor: default;
@@ -27,4 +29,8 @@
 
 .has-width-250 {
     width: 250px;
+}
+
+.rating-icon {
+    color: gold;
 }
