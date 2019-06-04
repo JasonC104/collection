@@ -1,34 +1,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const ItemSchema = new Schema(
-	{
-		title: String,
-		platform: String,
-		cost: Number,
-		rating: String,
-		igdbId: Number,
-		imageHash: String
-	},
-	{
-		timestamps: true
-	}
-);
-
 const GameSchema = new Schema(
 	{
-		title: String,
-		platform: String,
-		cost: Number,
-		purchaseDate: Date,
-		type: String,
-		rating: Number,
-		completed: Boolean,
-		gift: Boolean,
-		links: [String],
+		title: { type: String, required: true },
+		platform: { type: String, required: true },
+		cost: { type: Number, required: true },
+		purchaseDate: { type: Date, default: new Date() },
+		type: { type: String, required: true },
+		rating: { type: Number, default: 0 },
+		completed: { type: Boolean, default: false },
+		gift: { type: Boolean, default: false },
+		links: { type: [String], default: [] },
 		igdb: {
-			id: Number,
-			imageHash: String
+			id: { type: Number, required: true },
+			imageHash: { type: String, required: true }
 		}
 	},
 	{

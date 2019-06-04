@@ -9,7 +9,7 @@ function apiCall(endpoint, body) {
 }
 
 function searchGame(title) {
-    const body = `fields name, popularity, cover.url, platforms.abbreviation; search "${title}"; limit 5;`;
+    const body = `fields name, popularity, cover.url, cover.image_id, platforms.abbreviation; search "${title}";`;
     return apiCall('/games', body);
 }
 

@@ -12,11 +12,19 @@ const app = express();
 app.use(cors());
 const router = express.Router();
 
-// connects our back end code with the database
-mongoose.connect(process.env.DB_ROUTE, { useNewUrlParser: true });
-const db = mongoose.connection;
-db.once('open', () => console.log('connected to the database'));
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+function connectToDatabase(dbRoute) {
+	mongoose.connect(dbRoute, { useNewUrlParser: true });
+	const db = mongoose.connection;
+	db.once('open', () => console.log('connected to the database'));
+	db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+}
+
+// connects to the database
+if (process.env.NODE_ENV.trim() == 'production') {
+	connectToDatabase(process.env.DB_ROUTE_PROD);
+} else {
+	connectToDatabase(process.env.DB_ROUTE_DEV);
+}
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
@@ -48,7 +56,7 @@ function generateItemViewModel(e) {
 router.get('/items', async (req, res) => {
 	const query = req.query;
 	const requirements = {};
-	let sortRequirements = { createdAt: -1 };
+	let sortRequirements = { purchaseDate: -1 };
 
 	// search
 	if (query.search) {
@@ -74,7 +82,7 @@ router.get('/items', async (req, res) => {
 		const order = (query.order === 'desc') ? -1 : 1;
 		switch (query.sort) {
 			case 'date':
-				sortRequirements = { createdAt: order };
+				sortRequirements = { purchaseDate: order };
 				break;
 			case 'title':
 				sortRequirements = { title: order };
@@ -115,7 +123,7 @@ router.get('/search/:title', (req, res) => {
 });
 
 router.get('/items/csv', (req, res) => {
-	models.Game.find().sort({ createdAt: 1 }).exec((err, data) => {
+	models.Game.find().sort({ purchaseDate: 1 }).exec((err, data) => {
 		if (err) return res.json({ error: err });
 
 		const csv = csvParser.itemDataToCsv(data);
