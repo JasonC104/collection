@@ -62,7 +62,7 @@ class Collection extends Component {
 				</div>
 				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
 				<div className='item-group'>{itemElements}</div>
-				<div className='new-item-btn button' onClick={() => this.showModal()}>
+				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
 					<Icon icon='fas fa-plus fa-lg'/>
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, this.getItems)}

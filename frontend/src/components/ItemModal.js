@@ -29,7 +29,7 @@ class ItemModal extends React.Component {
 				<div className='modal-background' onClick={() => props.closeModal()} />
 				<div className='modal-card'>
 					<header className='modal-card-head'>
-						<p className='modal-card-title'>{item.title}</p>
+						<p className='modal-card-title'></p>
 						<button className='delete' onClick={() => props.closeModal()} />
 					</header>
 					<section className='modal-card-body is-flex'>
