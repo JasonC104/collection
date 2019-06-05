@@ -1,5 +1,17 @@
 .toolbar {
     margin: 30px;
+    margin-right: 0px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.toolbar-item {
+    margin-left: 20px;
+}
+
+.dropdown-menu {
+    left: auto !important;
+    right: 0px !important;
 }
 
 .dropdown-column {

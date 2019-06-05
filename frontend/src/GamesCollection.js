@@ -6,7 +6,7 @@ import * as ItemApi from './api/itemApi';
 import { Icon } from './elements';
 import './styles/collection.scss';
 
-class Collection extends Component {
+class GamesCollection extends Component {
 	constructor(props) {
 		super(props);
 		this.state = { items: [], itemRequirements: {}, showModal: false };
@@ -49,17 +49,7 @@ class Collection extends Component {
 		}
 
 		return (
-			<div className='main'>
-				<div className='header'>
-					<h1 className='title is-marginless'>Collection</h1>
-					<div className="tabs is-boxed">
-						<ul>
-							<li><a href='/'>Dashboard</a></li>
-							<li className="is-active"><a href='/'>Games</a></li>
-							<li><a href='/'>Movies</a></li>
-						</ul>
-					</div>
-				</div>
+			<div>
 				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
 				<div className='item-group'>{itemElements}</div>
 				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
@@ -72,4 +62,4 @@ class Collection extends Component {
 	}
 }
 
-export default Collection;
+export default GamesCollection;

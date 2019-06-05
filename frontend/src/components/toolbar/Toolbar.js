@@ -70,58 +70,54 @@ class Toolbar extends React.Component {
         });
 
         return (
-            <div className="level toolbar">
-                <div className="level-item">
-                    <form className="field has-addons">
-                        <p className="control">
-                            <input name='search' className="input" type="text" placeholder="Search for a Game" autoComplete="off"
-                                value={this.state.search} onChange={(e) => this.handleChange(e)} />
-                        </p>
-                        <p className="control">
-                            <button className="button" type='submit'
-                                onClick={e => { e.preventDefault(); this.props.changeItemRequirements({ 'search': this.state.search }) }}>
-                                Search
+            <div className="toolbar">
+                <form className="field has-addons toolbar-item">
+                    <p className="control">
+                        <input name='search' className="input" type="text" placeholder="Search for a Game" autoComplete="off"
+                            value={this.state.search} onChange={(e) => this.handleChange(e)} />
+                    </p>
+                    <p className="control">
+                        <button className="button" type='submit'
+                            onClick={e => { e.preventDefault(); this.props.changeItemRequirements({ 'search': this.state.search }) }}>
+                            Search
                             </button>
-                        </p>
-                    </form>
-                </div>
+                    </p>
+                </form>
 
-                <div className="level-item">
-                    <div className="dropdown is-hoverable">
-                        <div className="dropdown-trigger">
-                            <button className="button">
-                                <span>Filter/Sort</span>
-                                <Icon className="is-small" icon='fas fa-angle-down' />
-                            </button>
-                        </div>
-                        <div className="dropdown-menu" id="dropdown-menu" role="menu">
-                            <div className="dropdown-content is-flex">
-                                <div className='filter-dropdown dropdown-column'>
-                                    <p className='title is-5'>Filter</p>
-                                    <div className='is-flex'>
-                                        <div className='dropdown-column'>
-                                            <p className='subtitle is-6'>Platform</p>
-                                            {platformOptions}
-                                        </div>
-                                        <div className='dropdown-column'>
-                                            <p className='subtitle is-6'>Completion</p>
-                                            {completionOptions}
-                                        </div>
+                <div className="dropdown is-hoverable toolbar-item">
+                    <div className="dropdown-trigger">
+                        <button className="button">
+                            <span>Filter/Sort</span>
+                            <Icon className="is-small" icon='fas fa-angle-down' />
+                        </button>
+                    </div>
+                    <div className="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div className="dropdown-content is-flex">
+                            <div className='filter-dropdown dropdown-column'>
+                                <p className='title is-5'>Filter</p>
+                                <div className='is-flex'>
+                                    <div className='dropdown-column'>
+                                        <p className='subtitle is-6'>Platform</p>
+                                        {platformOptions}
+                                    </div>
+                                    <div className='dropdown-column'>
+                                        <p className='subtitle is-6'>Completion</p>
+                                        {completionOptions}
                                     </div>
                                 </div>
-                                <div className='sort-dropdown dropdown-column'>
-                                    <p className='title is-5'>Sort</p>
-                                    <div className='dropdown-column'>
-                                        <p className='subtitle is-6'>Options</p>
-                                        {sortOptions}
-                                    </div>
+                            </div>
+                            <div className='sort-dropdown dropdown-column'>
+                                <p className='title is-5'>Sort</p>
+                                <div className='dropdown-column'>
+                                    <p className='subtitle is-6'>Options</p>
+                                    {sortOptions}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <p className="level-item">
+                <p className="toolbar-item">
                     <a className='button is-link' href='http://localhost:3001/api/items/csv' download>Export to CSV</a>
                 </p>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Collection from './Collection';
+import Main from './Main';
 
-ReactDOM.render(<Collection />, document.getElementById('root'));
+ReactDOM.render(<Main />, document.getElementById('root'));
