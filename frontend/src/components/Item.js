@@ -1,5 +1,5 @@
 import React from 'react';
-import ItemModal from './ItemModal';
+import { ItemModal } from '../modals';
 import { Icon } from '../elements';
 import './styles/item.scss';
 

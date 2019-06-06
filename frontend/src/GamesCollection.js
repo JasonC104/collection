@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Item from './components/Item';
-import ItemCreationModal from './components/itemCreation/ItemCreationModal';
+import { ItemCreationModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
 import * as ItemApi from './api/itemApi';
 import { Icon } from './elements';
@@ -53,7 +53,7 @@ class GamesCollection extends Component {
 				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
 				<div className='item-group'>{itemElements}</div>
 				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
-					<Icon icon='fas fa-plus fa-lg'/>
+					<Icon icon='fas fa-plus fa-lg' />
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, this.getItems)}
 					closeModal={() => this.closeModal()} />
