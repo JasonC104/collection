@@ -6,21 +6,37 @@ import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
 import './styles/main.scss';
 
-function Main() {
-    const NavBar = withRouter(NavBarComponent);
-    return (
-        <div className='main'>
-            <BrowserRouter>
-                <div className='header'>
-                    <h1 className='title is-marginless'>Collection</h1>
-                    <NavBar />
-                </div>
-                <Route path="/" exact component={Dashboard} />
-                <Route path="/games" component={GamesCollection} />
-                <Route path="/movies" component={MoviesCollection} />
-            </BrowserRouter>
-        </div>
-    );
+class Main extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { items: [] };
+    }
+
+    setItems(items) {
+        this.setState({ items });
+    }
+
+    render() {
+        const NavBar = withRouter(NavBarComponent);
+        return (
+            <div className='main'>
+                <BrowserRouter>
+                    <div className='header'>
+                        <h1 className='title is-marginless'>Collection</h1>
+                        <NavBar />
+                    </div>
+                    <Route path="/" exact render={props =>
+                        <Dashboard items={this.state.items} />
+                    } />
+                    <Route path="/games" render={props =>
+                        <GamesCollection items={this.state.items} setItems={i => this.setItems(i)} />
+                    } />
+                    <Route path="/movies" component={MoviesCollection} />
+                </BrowserRouter>
+            </div>
+        );
+    }
 }
 
 class NavBarComponent extends Component {

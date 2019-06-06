@@ -9,7 +9,9 @@ function ItemCreationForm(props) {
     const platformOptions = props.platforms.map(p => <option key={p}>{p}</option>);
     return (
         <div className='is-flex' style={{ width: '100%' }}>
-            <img className='modal-pic' src={props.imageUrl} alt={item.title} />
+            <div style={{ width: '300px' }}>
+                <img className='modal-pic' src={props.imageUrl} alt={item.title} />
+            </div>
             <div style={{ marginLeft: '10px', width: '100%' }}>
                 <h1 className='title'>{item.title}</h1>
 
@@ -25,7 +27,7 @@ function ItemCreationForm(props) {
                     <div className='control has-icons-left' style={{ width: '100px' }}>
                         <input name='cost' className='input' maxLength='6' type='text' placeholder='0'
                             value={item.cost} onChange={(e) => props.handleChange(e)} />
-                        <Icon className='is-left' icon='fas fa-dollar-sign'/>
+                        <Icon className='is-left' icon='fas fa-dollar-sign' />
                     </div>
                 </FormElement>
 

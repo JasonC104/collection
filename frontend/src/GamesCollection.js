@@ -9,7 +9,7 @@ import './styles/collection.scss';
 class GamesCollection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { items: [], itemRequirements: {}, showModal: false };
+		this.state = { itemRequirements: {}, showModal: false };
 		this.getItems = this.getItems.bind(this);
 	}
 
@@ -19,7 +19,7 @@ class GamesCollection extends Component {
 
 	getItems() {
 		ItemApi.getItems(this.state.itemRequirements, response => {
-			this.setState({ items: response.data });
+			this.props.setItems(response.data);
 		})
 	}
 
@@ -42,7 +42,7 @@ class GamesCollection extends Component {
 
 	render() {
 		const itemElements = [];
-		for (let item of this.state.items) {
+		for (let item of this.props.items) {
 			itemElements.push(
 				<Item key={item.title} item={item} deleteItem={i => ItemApi.deleteItem(i.id, this.getItems)} />
 			);

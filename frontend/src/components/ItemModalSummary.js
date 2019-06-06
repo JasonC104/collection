@@ -18,7 +18,7 @@ function ItemModalSummary(props) {
 
                 <FormElement label='Cost'>
                     <Icon icon='fas fa-dollar-sign' />
-                    <p>{item.cost}</p>
+                    <p>{item.cost.toFixed(2)}</p>
                 </FormElement>
 
                 <FormElement label='Type'>
