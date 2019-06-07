@@ -4,6 +4,7 @@ import { withRouter } from "react-router";
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
+import * as ItemApi from './api/itemApi';
 import './styles/main.scss';
 
 class Main extends Component {
@@ -11,6 +12,12 @@ class Main extends Component {
     constructor(props) {
         super(props);
         this.state = { items: [] };
+    }
+
+    componentDidMount() {
+        ItemApi.getItems({}, response => {
+            this.setItems(response.data);
+        });
     }
 
     setItems(items) {

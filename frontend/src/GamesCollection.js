@@ -13,14 +13,10 @@ class GamesCollection extends Component {
 		this.getItems = this.getItems.bind(this);
 	}
 
-	componentDidMount() {
-		this.getItems();
-	}
-
 	getItems() {
 		ItemApi.getItems(this.state.itemRequirements, response => {
 			this.props.setItems(response.data);
-		})
+		});
 	}
 
 	changeItemRequirements(newRequirements) {
