@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Actions } from './actions';
 import Item from './components/Item';
 import { ItemCreationModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
@@ -9,23 +11,13 @@ import './styles/collection.scss';
 class GamesCollection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { itemRequirements: {}, showModal: false };
-		this.getItems = this.getItems.bind(this);
+		this.state = { showModal: false };
 	}
 
-	getItems() {
-		ItemApi.getItems(this.state.itemRequirements, response => {
-			this.props.setItems(response.data);
+	getGames() {
+		ItemApi.getItems(this.props.gameRequirements, response => {
+			this.props.setGames(response.data);
 		});
-	}
-
-	changeItemRequirements(newRequirements) {
-		this.setState({
-			itemRequirements: {
-				...this.state.itemRequirements,
-				...newRequirements
-			}
-		}, () => this.getItems());
 	}
 
 	showModal() {
@@ -37,25 +29,40 @@ class GamesCollection extends Component {
 	}
 
 	render() {
-		const itemElements = [];
-		for (let item of this.props.items) {
-			itemElements.push(
-				<Item key={item.title} item={item} deleteItem={i => ItemApi.deleteItem(i.id, this.getItems)} />
+		const gameElements = [];
+		for (let game of this.props.games) {
+			gameElements.push(
+				<Item key={game.title} item={game} deleteItem={i => ItemApi.deleteItem(i.id, () => this.getGames())} />
 			);
 		}
 
 		return (
 			<div>
-				<Toolbar changeItemRequirements={n => this.changeItemRequirements(n)} />
-				<div className='item-group'>{itemElements}</div>
+				<Toolbar getGames={() => this.getGames()} />
+				<div className='item-group'>
+					{gameElements}
+				</div>
 				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, this.getItems)}
+				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, () => this.getGames())}
 					closeModal={() => this.closeModal()} />
 			</div>
 		);
 	}
 }
 
-export default GamesCollection;
+function mapStateToProps(state) {
+	return {
+		gameRequirements: state.gameRequirements,
+		games: state.items.filteredGames
+	};
+}
+
+function mapDispatchToProps(dispatch) {
+	return {
+		setGames: (games) => dispatch(Actions.setGames(games))
+	};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(GamesCollection);

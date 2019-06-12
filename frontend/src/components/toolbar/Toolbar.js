@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { Actions } from '../../actions';
 import { Icon } from '../../elements';
 import './styles.scss';
 
@@ -6,35 +8,52 @@ class Toolbar extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { search: '', sort: '', order: '', platform: [] };
+        this.state = { 'search': '' };
     }
 
-    handleChange(e) {
-        const { name, value } = e.target;
-        this.setState({ [name]: value });
+    updateRequirements(newRequirements) {
+        new Promise(resolve =>
+            resolve(this.props.changeGameRequirements(newRequirements))
+        ).then(() => this.props.getGames());
+    }
+
+    clearChanges() {
+        this.setState({ 'search': '' });
+        new Promise(resolve =>
+            resolve(this.props.removeGameRequirements())
+        ).then(() => this.props.getGames());
+    }
+
+    handleSearchChange(e) {
+        this.setState({ 'search': e.target.value });
+    }
+
+    handleSearchSubmit(e) {
+        e.preventDefault();
+        this.updateRequirements({ 'search': this.state.search });
     }
 
     handleSort(option, order) {
-        this.setState({ sort: option, order });
-        this.props.changeItemRequirements({ 'sort': option, 'order': order });
+        this.updateRequirements({ 'sort': option, 'order': order });
     }
 
     handleFilter(filter, option) {
-        const newFilter = this.state[filter];
-        const index = newFilter.indexOf(option);
-        if (index === -1) { // add the filter option
-            newFilter.push(option);
-        } else { // remove the filter option
-            newFilter.splice(index, 1);
+        let newFilter = this.props.gameRequirements[filter];
+        if (newFilter) {
+            const index = newFilter.indexOf(option);
+            if (index === -1) { // add the filter option
+                newFilter.push(option);
+            } else { // remove the filter option
+                newFilter.splice(index, 1);
+            }
+        } else {
+            newFilter = [option];
         }
-        this.setState({
-            [filter]: newFilter
-        });
-        this.props.changeItemRequirements({ [filter]: newFilter });
+        this.updateRequirements({ [filter]: newFilter });
     }
 
     render() {
-
+        // TODO make platform options dynamic
         const platformOptions = ['PS4', 'PS3', '3DS'].map(option => {
             return (
                 <div key={option}>
@@ -74,13 +93,12 @@ class Toolbar extends React.Component {
                 <form className="field has-addons toolbar-item">
                     <p className="control">
                         <input name='search' className="input" type="text" placeholder="Search for a Game" autoComplete="off"
-                            value={this.state.search} onChange={(e) => this.handleChange(e)} />
+                            value={this.state.search} onChange={e => this.handleSearchChange(e)} />
                     </p>
                     <p className="control">
-                        <button className="button" type='submit'
-                            onClick={e => { e.preventDefault(); this.props.changeItemRequirements({ 'search': this.state.search }) }}>
+                        <button className="button" type='submit' onClick={e => this.handleSearchSubmit(e)}>
                             Search
-                            </button>
+                        </button>
                     </p>
                 </form>
 
@@ -118,6 +136,10 @@ class Toolbar extends React.Component {
                 </div>
 
                 <p className="toolbar-item">
+                    <button className='button is-danger' onClick={() => this.clearChanges()}>Clear Filters/Sorts</button>
+                </p>
+
+                <p className="toolbar-item">
                     <a className='button is-link' href='http://localhost:3001/api/items/csv' download>Export to CSV</a>
                 </p>
             </div>
@@ -125,4 +147,17 @@ class Toolbar extends React.Component {
     }
 }
 
-export default Toolbar;
+function mapStateToProps(state) {
+    return {
+        gameRequirements: state.gameRequirements,
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        changeGameRequirements: (requirements) => dispatch(Actions.changeGameRequirements(requirements)),
+        removeGameRequirements: () => dispatch(Actions.removeGameRequirements()),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toolbar);

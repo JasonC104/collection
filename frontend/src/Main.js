@@ -13,17 +13,12 @@ class Main extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { items: [] };
     }
 
     componentDidMount() {
         ItemApi.getItems({}, response => {
             this.props.setGames(response.data);
         });
-    }
-
-    setItems(items) {
-        this.setState({ items });
     }
 
     render() {
@@ -36,10 +31,10 @@ class Main extends Component {
                         <NavBar />
                     </div>
                     <Route path="/" exact render={props =>
-                        <Dashboard {...props} items={this.props.games} setItems={i => this.setItems(i)} />
+                        <Dashboard {...props} />
                     } />
                     <Route path="/games" render={props =>
-                        <GamesCollection items={this.props.games} setItems={i => this.setItems(i)} />
+                        <GamesCollection />
                     } />
                     <Route path="/movies" component={MoviesCollection} />
                 </BrowserRouter>
@@ -71,16 +66,10 @@ class NavBarComponent extends Component {
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        games: state.games,
-    };
-}
-
 function mapDispatchToProps(dispatch) {
     return {
         setGames: (games) => dispatch(Actions.setGames(games))
-    }
+    };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Main);
+export default connect(null, mapDispatchToProps)(Main);

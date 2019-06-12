@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { differenceInCalendarMonths, format, startOfMonth } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
+import { connect } from 'react-redux';
+import { Actions } from './actions';
 import { getLastMonths } from './helpers';
 import { BarWidget, PieWidget } from './widgets';
-import { CountedSet } from './helpers';
-import {
-	BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip
-} from 'recharts';
 
 class Dashboard extends Component {
 	constructor(props) {
@@ -13,19 +11,19 @@ class Dashboard extends Component {
 	}
 
 	handleClick(data) {
-		this.props.setItems(data.items);
+		this.props.setGames(data.items);
 		this.props.history.push('/games');
 	}
 
 	render() {
 
-		const platformData = Object.entries(groupBy(this.props.items, i => i.platform))
+		const platformData = Object.entries(groupBy(this.props.games, i => i.platform))
 			.map(entry => {
 				const [key, groupedItems] = entry;
 				return { label: key, value: groupedItems.length };
 			});
 
-		const gamesByMonth = groupBy(this.props.items, i => startOfMonth(new Date(i.purchaseDate)));
+		const gamesByMonth = groupBy(this.props.games, i => startOfMonth(new Date(i.purchaseDate)));
 		const lastMonths = getLastMonths(12).reverse();
 		const gamesInLastMonths = lastMonths.map(month => {
 			let count = (gamesByMonth[month]) ? gamesByMonth[month].length : 0;
@@ -85,4 +83,16 @@ function groupBy(collection, groupFunction) {
 	return result;
 }
 
-export default Dashboard;
+function mapStateToProps(state) {
+	return {
+		games: state.items.games
+	};
+}
+
+function mapDispatchToProps(dispatch) {
+	return {
+		setGames: (games) => dispatch(Actions.setFilteredGames(games))
+	};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
