@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import { withRouter } from "react-router";
+import { connect } from 'react-redux';
+import { Actions } from './actions';
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
@@ -16,7 +18,7 @@ class Main extends Component {
 
     componentDidMount() {
         ItemApi.getItems({}, response => {
-            this.setItems(response.data);
+            this.props.setGames(response.data);
         });
     }
 
@@ -34,10 +36,10 @@ class Main extends Component {
                         <NavBar />
                     </div>
                     <Route path="/" exact render={props =>
-                        <Dashboard items={this.state.items} />
+                        <Dashboard {...props} items={this.props.games} setItems={i => this.setItems(i)} />
                     } />
                     <Route path="/games" render={props =>
-                        <GamesCollection items={this.state.items} setItems={i => this.setItems(i)} />
+                        <GamesCollection items={this.props.games} setItems={i => this.setItems(i)} />
                     } />
                     <Route path="/movies" component={MoviesCollection} />
                 </BrowserRouter>
@@ -69,4 +71,16 @@ class NavBarComponent extends Component {
     }
 }
 
-export default Main;
+function mapStateToProps(state) {
+    return {
+        games: state.games,
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        setGames: (games) => dispatch(Actions.setGames(games))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);
