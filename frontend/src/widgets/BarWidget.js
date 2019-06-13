@@ -12,7 +12,7 @@ function BarWidget(props) {
     });
 
     return (
-        <BarChart width={730} height={250} data={props.data}>
+        <BarChart width={props.width} height={props.height} data={props.data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="label" />
             <YAxis />

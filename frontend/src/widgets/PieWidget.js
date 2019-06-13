@@ -19,11 +19,13 @@ function PieWidget(props) {
             </Pie>
     }
 
+    const pieSize = Math.min(props.width, props.height) * 0.4;
+
     return (
-        <PieChart width={730} height={250}>
+        <PieChart width={props.width} height={props.height}>
             <Tooltip />
-            <Pie data={props.data[0]} dataKey="value" nameKey="label" outerRadius={100}
-                isAnimationActive={false} labelLine={false}>
+            <Pie data={props.data[0]} dataKey="value" nameKey="label" outerRadius={pieSize}
+                isAnimationActive={false} labelLine={false} onClick={props.onClick}>
                 <LabelList dataKey="label" position="outside" offset={10} />
                 {props.data[0].map((entry, index) =>
                     <Cell key={`cell-${index}`} fill={COLORS[index]} stroke={COLORS[index]} />
