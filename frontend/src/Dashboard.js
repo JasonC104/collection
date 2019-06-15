@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Actions } from './actions';
 import { getLastMonths, ChartCreator } from './helpers';
 import { BarWidget, PieWidget } from './widgets';
+import { Icon } from './elements';
+import { WidgetCreationModal } from './modals';
 import DashboardTest from './DashboardTest';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
@@ -12,17 +14,20 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layouts: {}, breakpoint: '', widgets: [] };
+		this.state = { layouts: {}, breakpoint: '', widgets: [], nextLayoutKey: 1, showModal: false };
+	}
+
+	getDefaultLayout() {
+		return [
+			{ i: '1', w: 2, h: 4, x: 0, y: 0, minW: 2, minH: 4 },
+			{ i: '2', w: 5, h: 6, x: 0, y: 3, minW: 3, minH: 3 },
+			{ i: '3', w: 5, h: 6, x: 0, y: 10, minW: 3, minH: 3 },
+			{ i: '4', w: 5, h: 6, x: 0, y: 15, minW: 3, minH: 3 }
+		];
 	}
 
 	componentDidMount() {
-		const layout = [
-			{ i: '1', w: 2, h: 2, x: 0, y: 0, minW: 2, minH: 2 },
-			{ i: '2', w: 5, h: 5, x: 0, y: 3, minW: 3, minH: 3 },
-			{ i: '3', w: 5, h: 5, x: 0, y: 10, minW: 3, minH: 3 },
-			{ i: '4', w: 5, h: 5, x: 0, y: 15, minW: 3, minH: 3 }
-		];
-		this.setState({ layouts: { 'lg': layout, 'md': layout } });
+		this.setState({ layouts: { 'lg': this.getDefaultLayout(), 'md': this.getDefaultLayout() }, nextLayoutKey: 5 });
 	}
 
 	componentDidUpdate(prevProps) {
@@ -42,7 +47,7 @@ class Dashboard extends Component {
 	}
 
 	onResize(layout, oldItem, newItem) {
-		const currentLayout = this.state.layouts[this.state.breakpoint];
+		const currentLayout = this.getCurrentLayout();
 		if (currentLayout.h !== newItem.h || currentLayout.w !== newItem.w) {
 			console.log(currentLayout, newItem);
 			this.setState({
@@ -54,9 +59,29 @@ class Dashboard extends Component {
 		}
 	}
 
+	addWidget(widgetData) {
+		const widgets = this.state.widgets;
+		widgets.push(widgetData);
+		const layouts = { ...this.state.layouts };
+		const newLayout = { i: this.state.nextLayoutKey.toString(), w: 2, h: 4, x: 0, y: Infinity, minW: 2, minH: 4 };
+		Object.keys(layouts).forEach(key => {
+			layouts[key].push(newLayout);
+		});
+		// TODO try only pushing the new layout to the current breakpoint
+		this.setState({ widgets, layouts, nextLayoutKey: this.state.nextLayoutKey + 1 });
+	}
+
 	handleClick(data) {
 		this.props.setGames(data.items);
 		this.props.history.push('/games');
+	}
+
+	getCurrentLayout() {
+		return this.state.layouts[this.state.breakpoint];
+	}
+
+	toggleModal() {
+		this.setState({ showModal: !this.state.showModal });
 	}
 
 	render() {
@@ -73,16 +98,15 @@ class Dashboard extends Component {
 		let layouts = {};
 		let gridElements = [];
 		if (this.state.breakpoint && this.state.widgets.length !== 0) {
-			layouts = this.state.layouts
-			gridElements = layouts[this.state.breakpoint].map((layout, index) => {
+			gridElements = this.getCurrentLayout().map((layout, index) => {
 				const widget = this.state.widgets[index];
 				const props = {
 					...widget.props,
 					width: layout.w * 100,
-					height: layout.h * 50
+					height: layout.h * 34
 				};
 				return (
-					<div key={layout.i} data-grid={layout}>
+					<div key={layout.i} data-grid={layout} className='has-background-light'>
 						{React.createElement(widget.type, props)}
 					</div>
 				);
@@ -90,24 +114,24 @@ class Dashboard extends Component {
 		}
 
 		return (
-			<ResponsiveReactGridLayout
-				className="layout"
-				breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-				cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-				rowHeight={50}
-				layouts={layouts}
-				//onLayoutChange={(layout, layouts) => this.onLayoutChange(layout, layouts)}
-				onResize={(layout, oldItem, newItem) => this.onResize(layout, oldItem, newItem)}
-				onBreakpointChange={newBreakpoint => this.onBreakpointChange(newBreakpoint)}
-			>
-				{/* <div key="1" data-grid={{ w: 2, h: 2, x: 0, y: 0, minW: 2, minH: 2 }}>
-                    <PieWidget data={[platformData]} width={width} height={height} />
-                </div> */}
-				{/* <div key="2" data-grid={{ w: 2, h: 3, x: 0, y: 9 }}>
-                    <BarWidget data={gamesInLastMonths} dataKey={['value']} width={500} height={250} colors={COLORS} />
-                </div> */}
-				{gridElements}
-			</ResponsiveReactGridLayout>
+			<div>
+				<ResponsiveReactGridLayout
+					className="layout"
+					breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+					cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+					rowHeight={25}
+					layouts={layouts}
+					//onLayoutChange={(layout, layouts) => this.onLayoutChange(layout, layouts)}
+					onResize={(layout, oldItem, newItem) => this.onResize(layout, oldItem, newItem)}
+					onBreakpointChange={newBreakpoint => this.onBreakpointChange(newBreakpoint)}
+				>
+					{gridElements}
+				</ResponsiveReactGridLayout>
+				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal()}>
+					<Icon icon='fas fa-plus fa-lg' />
+				</div>
+				<WidgetCreationModal active={this.state.showModal} addWidget={w => this.addWidget(w)} closeModal={() => this.toggleModal()}/>
+			</div>
 		);
 	}
 }
