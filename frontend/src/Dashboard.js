@@ -3,7 +3,7 @@ import { WidthProvider, Responsive } from "react-grid-layout";
 import { format, startOfMonth } from 'date-fns';
 import { connect } from 'react-redux';
 import { Actions } from './actions';
-import { getLastMonths } from './helpers';
+import { getLastMonths, ChartCreator } from './helpers';
 import { BarWidget, PieWidget } from './widgets';
 import DashboardTest from './DashboardTest';
 
@@ -113,13 +113,13 @@ class Dashboard extends Component {
 }
 
 function getWidgetData(games, handleClick) {
-	const platformData = Object.entries(groupBy(games, i => i.platform))
+	const platformData = Object.entries(ChartCreator.groupBy(games, i => i.platform))
 		.map(entry => {
 			const [key, groupedItems] = entry;
 			return { label: key, value: groupedItems.length, items: groupedItems };
 		});
 
-	const gamesByMonth = groupBy(games, i => startOfMonth(new Date(i.purchaseDate)));
+	const gamesByMonth = ChartCreator.groupBy(games, i => startOfMonth(new Date(i.purchaseDate)));
 	const lastMonths = getLastMonths(12).reverse();
 	const gamesInLastMonths = lastMonths.map(month => {
 		let count = (gamesByMonth[month]) ? gamesByMonth[month].length : 0;
@@ -140,7 +140,7 @@ function getWidgetData(games, handleClick) {
 	const gamesByMonthByPlatform = {};
 	Object.entries(gamesByMonth).forEach(entry => {
 		const [key, groupedItems] = entry;
-		gamesByMonthByPlatform[key] = groupBy(groupedItems, i => i.platform);
+		gamesByMonthByPlatform[key] = ChartCreator.groupBy(groupedItems, i => i.platform);
 	});
 	const gamesInLastMonthsByPlatform = lastMonths.map(month => {
 		const data = { label: format(month, 'MMM'), items: gamesByMonth[month] };
@@ -192,19 +192,6 @@ function getWidgetData(games, handleClick) {
 		}
 	];
 	return widgets;
-}
-
-function groupBy(collection, groupFunction) {
-	const result = {};
-	collection.forEach(obj => {
-		const key = groupFunction(obj);
-		if (key in result) {
-			result[key].push(obj);
-		} else {
-			result[key] = [obj];
-		}
-	});
-	return result;
 }
 
 function mapStateToProps(state) {
