@@ -129,8 +129,11 @@ function getWidgetData(games, handleClick) {
 			return { label: key, value: groupedItems.length, items: groupedItems };
 		});
 
+	// group games by their purchase month
 	const gamesByMonth = ChartCreator.groupBy(games, i => startOfMonth(new Date(i.purchaseDate)));
+	// since not all months will be represented, get the last x months
 	const lastMonths = getLastMonths(12).reverse();
+	// using the last x months, populate the array with the games
 	const gamesInLastMonths = lastMonths.map(month => {
 		let count = (gamesByMonth[month]) ? gamesByMonth[month].length : 0;
 		return { label: format(month, 'MMM'), value: count, items: gamesByMonth[month] };
@@ -147,23 +150,19 @@ function getWidgetData(games, handleClick) {
 		return { label: format(month, 'MMM'), spent: cost.toFixed(2), items: gamesByMonth[month] };
 	});
 
-	const gamesByMonthByPlatform = {};
-	Object.entries(gamesByMonth).forEach(entry => {
-		const [key, groupedItems] = entry;
-		gamesByMonthByPlatform[key] = ChartCreator.groupBy(groupedItems, i => i.platform);
-	});
 	const gamesInLastMonthsByPlatform = lastMonths.map(month => {
-		const data = { label: format(month, 'MMM'), items: gamesByMonth[month] };
-		if (gamesByMonthByPlatform[month]) {
-			Object.entries(gamesByMonthByPlatform[month]).forEach(entry => {
+		let data = {};
+		if (gamesByMonth[month]) {
+			data = ChartCreator.groupBy(gamesByMonth[month], i => i.platform);
+			Object.entries(data).forEach(entry => {
 				const [key, groupedItems] = entry;
 				data[key] = groupedItems.length;
 			});
 		}
-		return data;
+		return { label: format(month, 'MMM'), items: gamesByMonth[month], ...data };
 	});
 
-	const COLORS = ['#07bec3', '#7ff0af', '#ff7c7c', '#ddabff', '#a3ff00'];
+	const COLOURS = ['#07bec3', '#7ff0af', '#ff7c7c', '#ddabff', '#a3ff00'];
 
 	const widgets = [
 		{
@@ -178,7 +177,7 @@ function getWidgetData(games, handleClick) {
 			props: {
 				data: gamesInLastMonths,
 				dataKey: ['value'],
-				colors: COLORS,
+				colours: COLOURS,
 				onClick: handleClick
 			}
 		},
@@ -187,7 +186,7 @@ function getWidgetData(games, handleClick) {
 			props: {
 				data: gamesInLastMonthsByPlatform,
 				dataKey: ['PS4', '3DS'],
-				colors: COLORS,
+				colours: COLOURS,
 				onClick: handleClick
 			}
 		},
@@ -196,7 +195,7 @@ function getWidgetData(games, handleClick) {
 			props: {
 				data: gamesCostInLastMonths,
 				dataKey: ['spent'],
-				colors: COLORS,
+				colours: COLOURS,
 				onClick: handleClick
 			}
 		}

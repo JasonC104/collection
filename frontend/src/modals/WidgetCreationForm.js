@@ -12,6 +12,7 @@ const fieldLabels = {
     'platform': 'Platform',
     'completed': 'Completed',
     'gift': 'Gift',
+    'type': 'Type',
     'cost': 'Cost',
     'purchaseDate': 'Purchase Date',
 };
@@ -31,11 +32,15 @@ const formFields = [{
             label: 'Attribute'
         }],
         BarWidget: [{
-            options: ['purchaseDate'],
-            label: 'X-Axis'
-        }, {
-            options: ['platform', 'completed', 'cost'],
+            options: ['platform', 'type', 'cost'],
             label: 'Attribute'
+        }, {
+            options: ['purchaseDate'],
+            label: 'X-Axis',
+            'purchaseDate': [{
+                options: [3, 6, 12],
+                label: 'Duration'
+            }]
         }],
     }],
     news: [],
@@ -71,7 +76,7 @@ class WidgetCreationForm extends React.Component {
             }
 
             const options = field.options.map(option => {
-                const label = getLabel(option);
+                const label = getLabel(option) || option;
                 return <option key={label} value={option}>{label}</option>;
             });
             // add an initial null option

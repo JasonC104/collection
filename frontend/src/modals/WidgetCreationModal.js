@@ -33,9 +33,7 @@ class WidgetCreationModal extends React.Component {
         switch (widgetData['Widget Type']) {
             case 'chart':
                 const dataset = this.props[widgetData['Data Set']];
-                const widget = ChartCreator.createWidgetData(dataset, widgetData['Chart Type'], widgetData['Attribute'], null);
-                widget.props.width = 200;
-                widget.props.height = 200;
+                const widget = ChartCreator.createWidgetData(dataset, widgetData, null);
                 this.setState({ showWidget: true, widget });
                 break;
             case 'news':
