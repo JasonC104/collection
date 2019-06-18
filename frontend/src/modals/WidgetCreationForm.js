@@ -62,14 +62,14 @@ class WidgetCreationForm extends React.Component {
     }
 
     generateFormElements(fields) {
-        const selected = this.props.selected;
+        const widgetInfo = this.props.widgetInfo;
         let form = [];
         let selectedAll = true;
         fields.forEach(field => {
             // Set the select dropdown value if it exists
             let selectedValue = '';
-            if (selected[field.label]) {
-                selectedValue = selected[field.label];
+            if (widgetInfo[field.label]) {
+                selectedValue = widgetInfo[field.label];
             } else {
                 // boolean for checking if all select dropdowns have values
                 selectedAll = false;
@@ -93,9 +93,10 @@ class WidgetCreationForm extends React.Component {
             );
         });
 
+        // if all form elements have been filled
         if (selectedAll) {
             fields.forEach(field => {
-                const selectedField = field[selected[field.label]];
+                const selectedField = field[widgetInfo[field.label]];
                 if (selectedField) {
                     form = form.concat(this.generateFormElements(selectedField));
                 }

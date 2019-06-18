@@ -15,3 +15,15 @@ export function setFilteredGames(games) {
 export function setGames(games) {
     return { type: ActionTypes.SET_GAMES, payload: games };
 }
+
+export function addWidgetData(widgetData) {
+    return { type: ActionTypes.ADD_WIDGET_DATA, widgetData };
+}
+
+export function setWidgetsData(widgetsData) {
+    return { type: ActionTypes.SET_WIDGETS_DATA, widgetsData };
+}
+
+export function removeWidgetData(index) {
+    return { type: ActionTypes.REMOVE_WIDGET_DATA, index };
+}

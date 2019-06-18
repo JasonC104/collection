@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { WidthProvider, Responsive } from "react-grid-layout";
+import RGL, { WidthProvider, Responsive } from "react-grid-layout";
 import { format, startOfMonth } from 'date-fns';
 import { connect } from 'react-redux';
+import * as Storage from './api/localStorage';
 import { Actions } from './actions';
 import { getLastMonths, ChartCreator } from './helpers';
 import { BarWidget, PieWidget } from './widgets';
@@ -14,71 +15,69 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layouts: {}, breakpoint: 'lg', widgets: [], nextLayoutKey: 0, showModal: false };
-	}
-
-	getDefaultLayout() {
-		return [
-			{ i: '1', w: 2, h: 4, x: 0, y: 0, minW: 2, minH: 4 },
-			{ i: '2', w: 5, h: 6, x: 0, y: 3, minW: 3, minH: 3 },
-			{ i: '3', w: 5, h: 6, x: 0, y: 10, minW: 3, minH: 3 },
-			{ i: '4', w: 5, h: 6, x: 0, y: 15, minW: 3, minH: 3 }
-		];
+		this.state = { layout: [], widgetsInfo: [], showModal: false };
 	}
 
 	componentDidMount() {
-		this.setState({ layouts: { 'lg': this.getDefaultLayout() }, nextLayoutKey: 5 });
+		this.setState({
+			layout: Storage.get('layout', []),
+			widgetsInfo: Storage.get('widgetsInfo', [])
+		});
 	}
 
 	componentDidUpdate(prevProps) {
 		// calculate widget data if data has changed
-		if (prevProps.games.length != this.props.games.length) {
-			this.setState({ widgets: getWidgetData(this.props.games, data => this.handleClick(data)) });
+		if (this.state.widgetsInfo && prevProps.games.length != this.props.games.length) {
+			const widgetsData = this.state.widgetsInfo.map(widgetInfo => {
+				const dataset = this.props[widgetInfo['Data Set']];
+				return ChartCreator.createWidgetData(dataset, widgetInfo, data => this.handleClick(data));
+			});
+			this.props.setWidgetsData(widgetsData);
 		}
 	}
 
-	onLayoutChange(layout, layouts) {
-		this.setState({ layouts });
+	onLayoutChange(layout) {
+		// Only save the layout changes when there are widgets on the dashboard
+		if (this.props.widgetsData.length !== 0) {
+			Storage.save('layout', layout);
+			this.setState({ layout });
+		}
 	}
 
-	onBreakpointChange(breakpoint) {
-		this.setState({ breakpoint });
-	}
-
-	onResize(layout, oldItem, newItem) {
+	onResize(layout, newItem) {
 		// try to only rerender if the layout has changed
 		// TODO: since setState is not synchronous, this does not always work
-		const currentLayout = this.getCurrentLayout();
-		if (currentLayout.h !== newItem.h || currentLayout.w !== newItem.w) {
-			this.setState({
-				layouts: {
-					...this.state.layouts,
-					[this.state.breakpoint]: layout
-				}
-			});
-		}
+		Storage.save('layout', layout);
+		this.setState({ layout });
 	}
 
-	addWidget(widgetData) {
-		const widgets = [...this.state.widgets];
-		widgets.push(widgetData);
+	addWidget(widgetInfo, widgetData) {
+		widgetData.props.onClick = data => this.handleClick(data);
+		this.props.addWidgetData(widgetData);
 
-		const layouts = { ...this.state.layouts };
-		const newLayout = { i: this.state.nextLayoutKey.toString(), w: 2, h: 4, x: 0, y: Infinity, minW: 2, minH: 4 };
-		layouts[this.state.breakpoint] = [...layouts[this.state.breakpoint], newLayout];
+		const widgetsInfo = [...this.state.widgetsInfo];
+		widgetsInfo.push(widgetInfo);
 
-		this.setState({ widgets, layouts, nextLayoutKey: this.state.nextLayoutKey + 1 });
+		const newLayout = { i: this.getNextLayoutKey(), w: 2, h: 4, x: 0, y: Infinity, minW: 2, minH: 4 };
+		const layout = [...this.state.layout, newLayout];
+
+		Storage.save('layout', layout);
+		Storage.save('widgetsInfo', widgetsInfo);
+		this.setState({ widgetsInfo, layout });
 	}
 
 	removeWidget(layoutKey, widgetIndex) {
-		const layouts = { ...this.state.layouts };
-		const layoutIndex = layouts[this.state.breakpoint].findIndex(e => e.i === layoutKey);
-		layouts[this.state.breakpoint].splice(layoutIndex, 1);
+		const layoutIndex = this.state.layout.findIndex(e => e.i === layoutKey);
+		const layout = this.state.layout.splice(layoutIndex, 1);
 
-		const widgets = [...this.state.widgets];
-		widgets.splice(widgetIndex, 1);
+		this.props.removeWidgetData(widgetIndex);
 
-		this.setState({ layouts, widgets });
+		const widgetsInfo = [...this.state.widgetsInfo];
+		widgetsInfo.splice(widgetIndex, 1);
+
+		Storage.save('layout', layout);
+		Storage.save('widgetsInfo', widgetsInfo);
+		this.setState({ layout, widgetsInfo });
 	}
 
 	handleClick(data) {
@@ -86,8 +85,12 @@ class Dashboard extends Component {
 		this.props.history.push('/games');
 	}
 
-	getCurrentLayout() {
-		return this.state.layouts[this.state.breakpoint];
+	getNextLayoutKey() {
+		const currentLayout = this.state.layout;
+		if (currentLayout.length === 0) return '0';
+
+		const nextLayoutKey = parseInt(currentLayout[currentLayout.length - 1].i) + 1;
+		return nextLayoutKey.toString();
 	}
 
 	toggleModal() {
@@ -95,136 +98,58 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		if (this.state.widgets.length === 0) return null;
-
-		const gridElements = this.getCurrentLayout().map((layout, index) => {
-			const widget = this.state.widgets[index];
-			const props = {
-				...widget.props,
-				width: layout.w * 100,
-				height: layout.h * 34
-			};
-			return (
-				<div key={layout.i} data-grid={layout} className='has-background-light'>
-					{React.createElement(widget.type, props)}
-					<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)}/>
-				</div>
-			);
-		});
+		let gridElements = [];
+		if (this.props.widgetsData.length !== 0) {
+			gridElements = this.state.layout.map((layout, index) => {
+				const widgetData = this.props.widgetsData[index];
+				const props = {
+					...widgetData.props,
+					width: layout.w * 100,
+					height: layout.h * 34
+				};
+				return (
+					<div key={layout.i} data-grid={layout} className='has-background-light'>
+						{React.createElement(widgetData.type, props)}
+						<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)} />
+					</div>
+				);
+			});
+		}
 
 		return (
 			<div>
 				<ResponsiveReactGridLayout
 					className="layout"
-					breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-					cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
 					rowHeight={25}
-					layouts={this.state.layouts}
-					onLayoutChange={(layout, layouts) => this.onLayoutChange(layout, layouts)}
-					onResize={(layout, oldItem, newItem) => this.onResize(layout, oldItem, newItem)}
-					onBreakpointChange={newBreakpoint => this.onBreakpointChange(newBreakpoint)}
+					layouts={this.state.layout}
+					onLayoutChange={(layout) => this.onLayoutChange(layout)}
+					onResize={(layout, oldItem, newItem) => this.onResize(layout, newItem)}
 				>
 					{gridElements}
 				</ResponsiveReactGridLayout>
 				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal()}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<WidgetCreationModal active={this.state.showModal} addWidget={w => this.addWidget(w)} closeModal={() => this.toggleModal()} />
+				<WidgetCreationModal active={this.state.showModal} addWidget={(info, data) => this.addWidget(info, data)}
+					closeModal={() => this.toggleModal()} />
 			</div>
 		);
 	}
 }
 
-function getWidgetData(games, handleClick) {
-	const platformData = Object.entries(ChartCreator.groupBy(games, i => i.platform))
-		.map(entry => {
-			const [key, groupedItems] = entry;
-			return { label: key, value: groupedItems.length, items: groupedItems };
-		});
-
-	// group games by their purchase month
-	const gamesByMonth = ChartCreator.groupBy(games, i => startOfMonth(new Date(i.purchaseDate)));
-	// since not all months will be represented, get the last x months
-	const lastMonths = getLastMonths(12).reverse();
-	// using the last x months, populate the array with the games
-	const gamesInLastMonths = lastMonths.map(month => {
-		let count = (gamesByMonth[month]) ? gamesByMonth[month].length : 0;
-		return { label: format(month, 'MMM'), value: count, items: gamesByMonth[month] };
-	});
-
-	const gamesCostInLastMonths = lastMonths.map(month => {
-		let cost = 0;
-		if (gamesByMonth[month]) {
-			cost = gamesByMonth[month].reduce((total, item) => {
-				if (item.gift) return total
-				else return total + item.cost;
-			}, 0);
-		}
-		return { label: format(month, 'MMM'), spent: cost.toFixed(2), items: gamesByMonth[month] };
-	});
-
-	const gamesInLastMonthsByPlatform = lastMonths.map(month => {
-		let data = {};
-		if (gamesByMonth[month]) {
-			data = ChartCreator.groupBy(gamesByMonth[month], i => i.platform);
-			Object.entries(data).forEach(entry => {
-				const [key, groupedItems] = entry;
-				data[key] = groupedItems.length;
-			});
-		}
-		return { label: format(month, 'MMM'), items: gamesByMonth[month], ...data };
-	});
-
-	const COLOURS = ['#07bec3', '#7ff0af', '#ff7c7c', '#ddabff', '#a3ff00'];
-
-	const widgets = [
-		{
-			type: PieWidget,
-			props: {
-				data: [platformData],
-				onClick: handleClick
-			}
-		},
-		{
-			type: BarWidget,
-			props: {
-				data: gamesInLastMonths,
-				dataKey: ['value'],
-				colours: COLOURS,
-				onClick: handleClick
-			}
-		},
-		{
-			type: BarWidget,
-			props: {
-				data: gamesInLastMonthsByPlatform,
-				dataKey: ['PS4', '3DS'],
-				colours: COLOURS,
-				onClick: handleClick
-			}
-		},
-		{
-			type: BarWidget,
-			props: {
-				data: gamesCostInLastMonths,
-				dataKey: ['spent'],
-				colours: COLOURS,
-				onClick: handleClick
-			}
-		}
-	];
-	return widgets;
-}
-
 function mapStateToProps(state) {
 	return {
-		games: state.items.games
+		games: state.items.games,
+		widgetsData: state.widgetsData
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
-		setGames: (games) => dispatch(Actions.setFilteredGames(games))
+		setGames: games => dispatch(Actions.setFilteredGames(games)),
+		addWidgetData: widgetData => dispatch(Actions.addWidgetData(widgetData)),
+		setWidgetsData: widgetsData => dispatch(Actions.setWidgetsData(widgetsData)),
+		removeWidgetData: index => dispatch(Actions.removeWidgetData(index))
 	};
 }
 

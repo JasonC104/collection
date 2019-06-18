@@ -6,34 +6,34 @@ import { ChartCreator } from '../helpers';
 class WidgetCreationModal extends React.Component {
     constructor(props) {
         super(props);
-        this.initialState = { widgetData: {}, showWidget: false, widget: {} }
+        this.initialState = { widgetInfo: {}, showWidget: false, widget: {} }
         this.state = { ...this.initialState };
     }
 
     handleChange(e) {
         const { name, value } = e.target;
-        const widgetData = {
-            ...this.state.widgetData,
+        const widgetInfo = {
+            ...this.state.widgetInfo,
             [name]: value
         };
-        this.setState({ widgetData });
+        this.setState({ widgetInfo });
     }
 
     addWidgetToDashboard() {
-        this.props.addWidget(this.state.widget);
+        this.props.addWidget(this.state.widgetInfo, this.state.widget);
         this.props.closeModal();
         this.setState({ ...this.initialState });
     }
 
     previewWidget(e) {
         e.preventDefault();
-        console.log(this.state.widgetData);
+        console.log(this.state.widgetInfo);
 
-        const widgetData = this.state.widgetData;
-        switch (widgetData['Widget Type']) {
+        const widgetInfo = this.state.widgetInfo;
+        switch (widgetInfo['Widget Type']) {
             case 'chart':
-                const dataset = this.props[widgetData['Data Set']];
-                const widget = ChartCreator.createWidgetData(dataset, widgetData, null);
+                const dataset = this.props[widgetInfo['Data Set']];
+                const widget = ChartCreator.createWidgetData(dataset, widgetInfo, null);
                 this.setState({ showWidget: true, widget });
                 break;
             case 'news':
@@ -63,7 +63,7 @@ class WidgetCreationModal extends React.Component {
                         <button className='delete' onClick={() => props.closeModal()} />
                     </header>
                     <section className='modal-card-body is-flex'>
-                        <WidgetCreationForm selected={this.state.widgetData} handleChange={e => this.handleChange(e)} />
+                        <WidgetCreationForm widgetInfo={this.state.widgetInfo} handleChange={e => this.handleChange(e)} />
                         {widget}
                     </section>
                     <footer className='modal-card-foot is-flex-end'>
