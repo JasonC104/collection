@@ -7,13 +7,14 @@ import { getLastMonths, ChartCreator } from './helpers';
 import { BarWidget, PieWidget } from './widgets';
 import { Icon } from './elements';
 import { WidgetCreationModal } from './modals';
+import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layouts: {}, breakpoint: 'lg', widgets: [], nextLayoutKey: 1, showModal: false };
+		this.state = { layouts: {}, breakpoint: 'lg', widgets: [], nextLayoutKey: 0, showModal: false };
 	}
 
 	getDefaultLayout() {
@@ -59,14 +60,25 @@ class Dashboard extends Component {
 	}
 
 	addWidget(widgetData) {
-		const widgets = this.state.widgets;
+		const widgets = [...this.state.widgets];
 		widgets.push(widgetData);
 
 		const layouts = { ...this.state.layouts };
 		const newLayout = { i: this.state.nextLayoutKey.toString(), w: 2, h: 4, x: 0, y: Infinity, minW: 2, minH: 4 };
-		layouts[this.state.breakpoint].push(newLayout);
+		layouts[this.state.breakpoint] = [...layouts[this.state.breakpoint], newLayout];
 
 		this.setState({ widgets, layouts, nextLayoutKey: this.state.nextLayoutKey + 1 });
+	}
+
+	removeWidget(layoutKey, widgetIndex) {
+		const layouts = { ...this.state.layouts };
+		const layoutIndex = layouts[this.state.breakpoint].findIndex(e => e.i === layoutKey);
+		layouts[this.state.breakpoint].splice(layoutIndex, 1);
+
+		const widgets = [...this.state.widgets];
+		widgets.splice(widgetIndex, 1);
+
+		this.setState({ layouts, widgets });
 	}
 
 	handleClick(data) {
@@ -95,6 +107,7 @@ class Dashboard extends Component {
 			return (
 				<div key={layout.i} data-grid={layout} className='has-background-light'>
 					{React.createElement(widget.type, props)}
+					<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)}/>
 				</div>
 			);
 		});
