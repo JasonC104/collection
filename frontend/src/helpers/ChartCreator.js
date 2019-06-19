@@ -17,7 +17,7 @@ export function createWidgetData(dataset, widgetInfo, handleClick) {
 
 export function createPieWidgetData(dataset, attribute, handleClick) {
 	// group the data set by the attribute and then transform each group to the wanted format
-	const widgetData = Object.entries(groupBy(dataset, i => i[attribute]))
+	const widgetData = Object.entries(groupBy(dataset, attribute, i => i[attribute]))
 		.map(entry => {
 			const [key, groupedItems] = entry;
 			return { label: key, value: groupedItems.length, items: groupedItems };
@@ -41,7 +41,7 @@ export function createBarWidgetData(dataset, widgetInfo, handleClick) {
 	let dataKey = new Set();
 	if (xAxis === 'purchaseDate') {
 		// group items by their purchase month
-		const itemsByMonth = groupBy(dataset, i => startOfMonth(new Date(i.purchaseDate)));
+		const itemsByMonth = groupBy(dataset, attribute, i => startOfMonth(new Date(i.purchaseDate)));
 		// since not all months will be represented, get the last x months
 		const duration = widgetInfo['Duration'];
 		const lastMonths = getLastMonths(duration).reverse();
@@ -80,7 +80,7 @@ function calculateBarData(dataset, attribute) {
 			return { [attribute]: accumulation };
 		} else {
 			// group the dataset and return the length of each subgroup
-			const groupedData = groupBy(dataset, i => i[attribute]);
+			const groupedData = groupBy(dataset, attribute, i => i[attribute]);
 			Object.entries(groupedData).forEach(entry => {
 				const [key, groupedItems] = entry;
 				groupedData[key] = groupedItems.length;
@@ -92,10 +92,10 @@ function calculateBarData(dataset, attribute) {
 	return { [attribute]: dataset.length };
 }
 
-export function groupBy(collection, groupFunction) {
+export function groupBy(collection, attribute, groupFunction) {
 	const result = {};
 	collection.forEach(obj => {
-		const key = groupFunction(obj);
+		const key = getLabel(groupFunction(obj), attribute);
 		if (key in result) {
 			result[key].push(obj);
 		} else {
@@ -103,4 +103,12 @@ export function groupBy(collection, groupFunction) {
 		}
 	});
 	return result;
+}
+
+function getLabel(key, attribute) {
+	if (typeof (key) === 'boolean') {
+		if (key) return attribute;
+		else return `Not ${attribute}`;
+	}
+	return key;
 }

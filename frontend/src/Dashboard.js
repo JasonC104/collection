@@ -10,7 +10,7 @@ import { Icon } from './elements';
 import { WidgetCreationModal } from './modals';
 import './styles/dashboard.scss';
 
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
+const ResponsiveReactGridLayout = WidthProvider(RGL);
 
 class Dashboard extends Component {
 	constructor(props) {

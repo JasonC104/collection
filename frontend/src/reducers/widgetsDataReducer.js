@@ -7,7 +7,7 @@ export function widgetsDataReducer(state, action) {
         case ActionTypes.SET_WIDGETS_DATA:
             return action.widgetsData;
         case ActionTypes.REMOVE_WIDGET_DATA:
-            const widgetsData = [...this.state.widgetsData];
+            const widgetsData = [...state];
             widgetsData.splice(action.index, 1);
             return widgetsData;
         default:
