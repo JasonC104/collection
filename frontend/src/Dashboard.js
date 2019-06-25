@@ -22,7 +22,7 @@ class Dashboard extends Component {
 		this.setState({
 			layout: Storage.get('layout', []),
 			widgetsInfo: Storage.get('widgetsInfo', [])
-		});
+		}, () => this.calculateWidgetData());
 
 		ItemApi.anticipatedGames(anticipated => {
 			this.setState({ anticipated });
@@ -32,12 +32,18 @@ class Dashboard extends Component {
 	componentDidUpdate(prevProps) {
 		// calculate widget data if data has changed
 		if (this.state.widgetsInfo && prevProps.games.length != this.props.games.length) {
-			const widgetsData = this.state.widgetsInfo.map(widgetInfo => {
-				const dataset = this.props[widgetInfo['Data Set']];
-				return ChartCreator.createWidgetData(dataset, widgetInfo, data => this.handleClick(data));
-			});
-			this.props.setWidgetsData(widgetsData);
+			this.calculateWidgetData();
 		}
+	}
+
+	calculateWidgetData() {
+		if (!this.props.games) return;
+
+		const widgetsData = this.state.widgetsInfo.map(widgetInfo => {
+			const dataset = this.props[widgetInfo['Data Set']];
+			return ChartCreator.createWidgetData(dataset, widgetInfo, data => this.handleClick(data));
+		});
+		this.props.setWidgetsData(widgetsData);
 	}
 
 	onLayoutChange(layout) {
@@ -138,7 +144,7 @@ class Dashboard extends Component {
 				</div>
 				<WidgetCreationModal active={this.state.showWidgetCreationModal} addWidget={(info, data) => this.addWidget(info, data)}
 					closeModal={() => this.toggleModal('showWidgetCreationModal')} />
-				<ItemModal footer={getItemModalFooter()}/>
+				<ItemModal footer={getItemModalFooter()} />
 			</div>
 		);
 	}
