@@ -27,3 +27,11 @@ export function setWidgetsData(widgetsData) {
 export function removeWidgetData(index) {
     return { type: ActionTypes.REMOVE_WIDGET_DATA, index };
 }
+
+export function showItemModal(item, elements) {
+    return { type: ActionTypes.SHOW_ITEM_MODAL, item, elements };
+}
+
+export function closeItemModal() {
+    return { type: ActionTypes.CLOSE_ITEM_MODAL };
+}

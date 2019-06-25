@@ -1,37 +1,34 @@
 import React from 'react';
-import { ItemModal } from '../modals';
+import { connect } from 'react-redux';
+import { Actions } from '../actions';
+import { gameImageResize } from '../helpers';
 import { Icon } from '../elements';
 import './styles/item.scss';
 
-class Item extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = { showModal: false };
-	}
+const modalElements = [
+	{ key: 'platform', label: 'Platform', type: 'text' },
+	{ key: 'cost', label: 'Cost', type: 'money' },
+	{ key: 'type', label: 'Type', type: 'text' },
+	{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
+	{ key: 'rating', label: 'Rating', type: 'rating' },
+	{ key: 'checkbox', label: 'Completed', type: 'checkbox' },
+	{ key: 'gift', label: 'Gift', type: 'checkbox' }
+];
 
-	showModal() {
-		this.setState({ showModal: true });
-	}
+function Item(props) {
+	const item = props.item;
+	const modalItem = { ...item, imageUrl: gameImageResize(item.imageUrl, 't_720p') };
 
-	closeModal() {
-		this.setState({ showModal: false });
-	}
-
-	render() {
-		const item = this.props.item;
-		return (
-			<div>
-				<div className='item' onClick={() => this.showModal()}>
-					<img className='item-pic' src={item.imageUrl} alt={item.title} />
-					<div className='item-summary'>
-						{getBadges(item)}
-					</div>
+	return (
+		<div>
+			<div className='item' onClick={() => props.showItemModal(modalItem, modalElements)}>
+				<img className='item-pic' src={item.imageUrl} alt={item.title} />
+				<div className='item-summary'>
+					{getBadges(item)}
 				</div>
-				<ItemModal active={this.state.showModal} item={item} deleteItem={(i) => this.props.deleteItem(i)}
-					closeModal={() => this.closeModal()} />
 			</div>
-		);
-	}
+		</div>
+	);
 }
 
 function getBadges(item) {
@@ -59,4 +56,10 @@ function getBadges(item) {
 	return iconBadges;
 }
 
-export default Item;
+function mapDispatchToProps(dispatch) {
+	return {
+		showItemModal: (item, elements) => dispatch(Actions.showItemModal(item, elements)),
+	};
+}
+
+export default connect(null, mapDispatchToProps)(Item);

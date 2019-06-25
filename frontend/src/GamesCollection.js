@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Actions } from './actions';
 import Item from './components/Item';
-import { ItemCreationModal } from './modals';
+import { ItemCreationModal, ItemModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
 import * as ItemApi from './api/itemApi';
 import { Icon } from './elements';
@@ -11,7 +11,7 @@ import './styles/collection.scss';
 class GamesCollection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { showModal: false };
+		this.state = { showModal: false, deleteClicked: false };
 	}
 
 	getGames() {
@@ -28,6 +28,15 @@ class GamesCollection extends Component {
 		this.setState({ showModal: false });
 	}
 
+	toggleDelete() {
+		const deleteClicked = this.state.deleteClicked;
+		if (deleteClicked) {
+			ItemApi.deleteItem(this.props.itemModal.item.id, () => this.getGames());
+			this.props.closeItemModal();
+		}
+		this.setState({ deleteClicked: !deleteClicked });
+	}
+
 	render() {
 		const gameElements = [];
 		for (let game of this.props.games) {
@@ -35,6 +44,19 @@ class GamesCollection extends Component {
 				<Item key={game.title} item={game} deleteItem={i => ItemApi.deleteItem(i.id, () => this.getGames())} />
 			);
 		}
+
+		const activeTooltip = this.state.deleteClicked ? 'tooltip' : '';
+		const modalButtons = (
+			<div>
+				<button className='button is-success'>
+					<Icon icon='fas fa-edit' />
+				</button>
+				<button className={'button is-danger is-tooltip-left ' + activeTooltip}
+					data-tooltip='Click again to confirm delete' onClick={() => this.toggleDelete()}>
+					<Icon icon='fas fa-trash' />
+				</button>
+			</div>
+		);
 
 		return (
 			<div>
@@ -47,6 +69,7 @@ class GamesCollection extends Component {
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, () => this.getGames())}
 					closeModal={() => this.closeModal()} />
+				<ItemModal footer={modalButtons}/>
 			</div>
 		);
 	}
@@ -55,13 +78,15 @@ class GamesCollection extends Component {
 function mapStateToProps(state) {
 	return {
 		gameRequirements: state.gameRequirements,
-		games: state.items.filteredGames
+		games: state.items.filteredGames,
+		itemModal: state.modals.itemModal
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
-		setGames: (games) => dispatch(Actions.setGames(games))
+		setGames: (games) => dispatch(Actions.setGames(games)),
+		closeItemModal: () => dispatch(Actions.closeItemModal()),
 	};
 }
 

@@ -47,7 +47,7 @@ function ItemCreationForm(props) {
                 <FormElement label='Purchase Date'>
                     <div className='control'>
                         <DatePicker className="input" todayButton={"Today"} selected={item.purchaseDate}
-                            dateFormat='MMM dd, YYYY' popperPlacement="right" placeholderText="Click to select a date"
+                            dateFormat='MMM dd, yyyy' popperPlacement="right" placeholderText="Click to select a date"
                             onChange={date => props.handleChange({ target: { name: 'purchaseDate', value: date } })} />
                     </div>
                 </FormElement>
