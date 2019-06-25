@@ -1,0 +1,15 @@
+.item-list-widget {
+    display: flex;
+    flex-wrap: wrap; 
+    overflow-y: auto;
+}
+
+.widget-item {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.widget-item-img {
+    border: #b7b7b7 1px solid;
+    border-radius: 3px;
+}

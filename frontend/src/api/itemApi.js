@@ -23,3 +23,9 @@ export function searchItem(title, callback) {
         .then(response => callback(response.data))
         .catch(err => console.log(err));
 }
+
+export function anticipatedGames(callback) {
+    axios.get(`http://localhost:3001/api/anticipated-games`)
+        .then(response => callback(response.data))
+        .catch(err => console.log(err));
+}

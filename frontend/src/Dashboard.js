@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import RGL, { WidthProvider, Responsive } from "react-grid-layout";
-import { format, startOfMonth } from 'date-fns';
+import RGL, { WidthProvider } from "react-grid-layout";
 import { connect } from 'react-redux';
 import * as Storage from './api/localStorage';
 import { Actions } from './actions';
-import { getLastMonths, ChartCreator } from './helpers';
-import { BarWidget, PieWidget } from './widgets';
+import { ChartCreator } from './helpers';
 import { Icon } from './elements';
-import { WidgetCreationModal } from './modals';
+import { WidgetCreationModal, ItemModal } from './modals';
+import { ItemListWidget } from './widgets';
+import * as ItemApi from './api/itemApi';
 import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(RGL);
@@ -15,13 +15,17 @@ const ResponsiveReactGridLayout = WidthProvider(RGL);
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layout: [], widgetsInfo: [], showModal: false };
+		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, anticipated: [] };
 	}
 
 	componentDidMount() {
 		this.setState({
 			layout: Storage.get('layout', []),
 			widgetsInfo: Storage.get('widgetsInfo', [])
+		});
+
+		ItemApi.anticipatedGames(anticipated => {
+			this.setState({ anticipated });
 		});
 	}
 
@@ -93,8 +97,8 @@ class Dashboard extends Component {
 		return nextLayoutKey.toString();
 	}
 
-	toggleModal() {
-		this.setState({ showModal: !this.state.showModal });
+	toggleModal(modal) {
+		this.setState({ [modal]: !this.state[modal] });
 	}
 
 	render() {
@@ -127,14 +131,27 @@ class Dashboard extends Component {
 				>
 					{gridElements}
 				</ResponsiveReactGridLayout>
-				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal()}>
+				<ItemListWidget title={'Anticipated Games'} width={220} height={500} items={this.state.anticipated}
+					showModal={(item, elements) => this.props.showItemModal(item, elements)} />
+				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal('showWidgetCreationModal')}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<WidgetCreationModal active={this.state.showModal} addWidget={(info, data) => this.addWidget(info, data)}
-					closeModal={() => this.toggleModal()} />
+				<WidgetCreationModal active={this.state.showWidgetCreationModal} addWidget={(info, data) => this.addWidget(info, data)}
+					closeModal={() => this.toggleModal('showWidgetCreationModal')} />
+				<ItemModal footer={getItemModalFooter()}/>
 			</div>
 		);
 	}
+}
+
+function getItemModalFooter() {
+	return (
+		<div>
+			<button className='button is-success'>
+				<p>Add to Wishlist</p>
+			</button>
+		</div>
+	);
 }
 
 function mapStateToProps(state) {
@@ -149,7 +166,8 @@ function mapDispatchToProps(dispatch) {
 		setGames: games => dispatch(Actions.setFilteredGames(games)),
 		addWidgetData: widgetData => dispatch(Actions.addWidgetData(widgetData)),
 		setWidgetsData: widgetsData => dispatch(Actions.setWidgetsData(widgetsData)),
-		removeWidgetData: index => dispatch(Actions.removeWidgetData(index))
+		removeWidgetData: index => dispatch(Actions.removeWidgetData(index)),
+		showItemModal: (item, elements) => dispatch(Actions.showItemModal(item, elements)),
 	};
 }
 
