@@ -9,7 +9,7 @@ function apiCall(endpoint, body) {
 }
 
 function searchGame(title) {
-    const body = `fields name, popularity, cover.url, cover.image_id, platforms.abbreviation; search "${title}";`;
+    const body = `fields name, popularity, cover.url, platforms.abbreviation, platforms.name; search "${title}"; limit 10;`;
     return apiCall('/games', body);
 }
 
@@ -18,4 +18,14 @@ function getGameCover(id) {
     return apiCall('/games', body);
 }
 
-module.exports = { searchGame, getGameCover };
+function anticipatedGames() {
+    // get unix timestamp in seconds
+    const today = Math.floor(Date.now() / 1000);
+    const body = `fields release_dates.date, name, summary, cover.url, platforms.abbreviation, platforms.name;
+    limit 10;
+    where release_dates.date > ${today} & release_dates.category = 0;
+    sort popularity desc;`;
+    return apiCall('/games', body);
+}
+
+module.exports = { searchGame, getGameCover, anticipatedGames };

@@ -31,10 +31,12 @@ if (process.env.NODE_ENV.trim() == 'production') {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+function convertDateToString(date) {
+	return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+}
+
 function generateItemViewModel(e) {
-	const purchaseDate = e.purchaseDate.toLocaleDateString(
-		'en-US', { year: 'numeric', month: 'short', day: '2-digit' }
-	);
+	const purchaseDate = convertDateToString(e.purchaseDate);
 	return {
 		id: e._id,
 		title: e.title,
@@ -47,7 +49,7 @@ function generateItemViewModel(e) {
 		gift: e.gift,
 		links: e.links,
 		igdbId: e.igdb.id,
-		imageUrl: `https://images.igdb.com/igdb/image/upload/t_720p/${e.igdb.imageHash}.jpg`
+		imageUrl: `https://images.igdb.com/igdb/image/upload/t_cover_uniform/${e.igdb.imageHash}.jpg`
 	};
 }
 
@@ -129,6 +131,31 @@ router.get('/items/csv', (req, res) => {
 		const csv = csvParser.itemDataToCsv(data);
 		res.attachment('item-data.csv');
 		return res.status(200).type('text/csv').send(csv);
+	});
+});
+
+router.get('/anticipated-games', (req, res) => {
+	IgdbApi.anticipatedGames().then(response => {
+		const data = [];
+		response.data.forEach(e => {
+			if (e.cover && e.cover.url && e.platforms && e.release_dates) {
+				const summary = e.summary || '';
+				const platforms = e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name);
+				const releaseDate = convertDateToString(new Date(e.release_dates[0].date * 1000));
+				data.push({
+					igdbId: e.id,
+					imageUrl: e.cover.url,
+					title: e.name, 
+					platforms, 
+					summary, 
+					releaseDate
+				});
+			}
+		});
+		return res.json(data);
+	}).catch(err => {
+		console.log(err);
+		return res.json(err);
 	});
 });
 
