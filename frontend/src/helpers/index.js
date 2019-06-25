@@ -1,5 +1,5 @@
-import CountedSet from './CountedSet';
 import { getLastMonths } from "./DateHelper";
 import * as ChartCreator from './ChartCreator';
+import { gameImageResize } from './Helper';
 
-export { CountedSet, getLastMonths, ChartCreator };
+export { getLastMonths, gameImageResize, ChartCreator };
