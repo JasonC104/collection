@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import WidgetCreationForm from './WidgetCreationForm';
-import { ChartCreator } from '../helpers';
+import { ChartCreator, WidgetCreator } from '../helpers';
 
 class WidgetCreationModal extends React.Component {
     constructor(props) {
@@ -27,7 +27,6 @@ class WidgetCreationModal extends React.Component {
 
     previewWidget(e) {
         e.preventDefault();
-        console.log(this.state.widgetInfo);
 
         const widgetInfo = this.state.widgetInfo;
         switch (widgetInfo['Widget Type']) {
@@ -38,6 +37,11 @@ class WidgetCreationModal extends React.Component {
                 break;
             case 'news':
                 break;
+            case 'other':
+                WidgetCreator.createItemList(widgetInfo, () => { }).then(widget => {
+                    this.setState({ showWidget: true, widget });
+                });
+                break;
             default:
         }
         return null;
@@ -47,7 +51,7 @@ class WidgetCreationModal extends React.Component {
 
         const props = this.props;
         const active = props.active ? 'is-active' : '';
-        let widget = null;
+        let widget = <div></div>;
         let enableAddWidgetButton = false;
         if (this.state.showWidget) {
             widget = React.createElement(this.state.widget.type, this.state.widget.props);

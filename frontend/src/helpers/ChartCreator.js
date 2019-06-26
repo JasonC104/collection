@@ -12,6 +12,7 @@ export function createWidgetData(dataset, widgetInfo, handleClick) {
 		case 'BarWidget':
 			return createBarWidgetData(dataset, widgetInfo, handleClick);
 		default:
+			return {};
 	}
 }
 

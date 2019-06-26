@@ -138,17 +138,21 @@ router.get('/anticipated-games', (req, res) => {
 	IgdbApi.anticipatedGames().then(response => {
 		const data = [];
 		response.data.forEach(e => {
-			if (e.cover && e.cover.url && e.platforms && e.release_dates) {
+			if (e.cover && e.cover.url && e.platforms && e.first_release_date) {
 				const summary = e.summary || '';
 				const platforms = e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name);
-				const releaseDate = convertDateToString(new Date(e.release_dates[0].date * 1000));
+				const releaseDate = convertDateToString(new Date(e.first_release_date * 1000));
+				const genres = e.genres ? e.genres.map(g => g.name) : [];
+				const themes = e.themes ? e.themes.map(t => t.name) : [];
 				data.push({
 					igdbId: e.id,
 					imageUrl: e.cover.url,
 					title: e.name, 
 					platforms, 
 					summary, 
-					releaseDate
+					releaseDate,
+					genres,
+					themes
 				});
 			}
 		});

@@ -21,9 +21,9 @@ function getGameCover(id) {
 function anticipatedGames() {
     // get unix timestamp in seconds
     const today = Math.floor(Date.now() / 1000);
-    const body = `fields release_dates.date, name, summary, cover.url, platforms.abbreviation, platforms.name;
+    const body = `fields first_release_date, name, summary, cover.url, genres.name, themes.name, platforms.abbreviation, platforms.name;
     limit 10;
-    where release_dates.date > ${today} & release_dates.category = 0;
+    where first_release_date > ${today} & release_dates.category = 0;
     sort popularity desc;`;
     return apiCall('/games', body);
 }

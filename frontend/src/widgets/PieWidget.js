@@ -19,7 +19,7 @@ function PieWidget(props) {
             </Pie>
     }
 
-    const pieSize = Math.min(props.width, props.height) * 0.4;
+    const pieSize = Math.min(props.width, props.height) * 0.3;
 
     return (
         <PieChart width={props.width} height={props.height}>

@@ -3,7 +3,7 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import { connect } from 'react-redux';
 import * as Storage from './api/localStorage';
 import { Actions } from './actions';
-import { ChartCreator } from './helpers';
+import { ChartCreator, WidgetCreator } from './helpers';
 import { Icon } from './elements';
 import { WidgetCreationModal, ItemModal } from './modals';
 import { ItemListWidget } from './widgets';
@@ -11,6 +11,27 @@ import * as ItemApi from './api/itemApi';
 import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(RGL);
+
+
+function getWidgetDefaultLayout(widgetInfo) {
+	let layout = {};
+	const widgetType = widgetInfo['Widget Type'];
+	if (widgetType === 'chart') {
+
+		const chartType = widgetInfo['Chart Type'];
+		if (chartType === 'PieWidget') {
+			layout = { w: 5, h: 4, minW: 5, minH: 4 };
+		} else if (chartType === 'BarWidget') {
+			layout = { w: 8, h: 4, minW: 6, minH: 4 };
+		}
+
+	} else if (widgetType === 'news') {
+	} else {
+		layout = { w: 8, h: 10, minW: 4, minH: 7 };
+	}
+	return { w: 5, h: 4, x: 0, y: Infinity, minW: 5, minH: 4, ...layout };
+}
+
 
 class Dashboard extends Component {
 	constructor(props) {
@@ -36,13 +57,30 @@ class Dashboard extends Component {
 		}
 	}
 
-	calculateWidgetData() {
+	getWidgetOnClick(widgetInfo) {
+		const widgetType = widgetInfo['Widget Type'];
+		if (widgetType === 'chart') {
+			return data => this.handleClick(data);
+		} else if (widgetType === 'news') {
+		} else {
+			return (item, elements) => this.props.showItemModal(item, elements);
+		}
+	}
+
+	async calculateWidgetData() {
 		if (!this.props.games) return;
 
-		const widgetsData = this.state.widgetsInfo.map(widgetInfo => {
-			const dataset = this.props[widgetInfo['Data Set']];
-			return ChartCreator.createWidgetData(dataset, widgetInfo, data => this.handleClick(data));
-		});
+		const widgetsData = [];
+		for (let widgetInfo of this.state.widgetsInfo) {
+			const onClick = this.getWidgetOnClick(widgetInfo);;
+			if (widgetInfo['Widget Type'] === 'chart') {
+				const dataset = this.props[widgetInfo['Data Set']];
+				widgetsData.push(ChartCreator.createWidgetData(dataset, widgetInfo, onClick));
+			} else if (widgetInfo['Widget Type'] === 'news') {
+			} else {
+				widgetsData.push(await WidgetCreator.createItemList(widgetInfo, onClick));
+			}
+		}
 		this.props.setWidgetsData(widgetsData);
 	}
 
@@ -62,13 +100,13 @@ class Dashboard extends Component {
 	}
 
 	addWidget(widgetInfo, widgetData) {
-		widgetData.props.onClick = data => this.handleClick(data);
+		widgetData.props.onClick = this.getWidgetOnClick(widgetInfo);
 		this.props.addWidgetData(widgetData);
 
 		const widgetsInfo = [...this.state.widgetsInfo];
 		widgetsInfo.push(widgetInfo);
 
-		const newLayout = { i: this.getNextLayoutKey(), w: 2, h: 4, x: 0, y: Infinity, minW: 2, minH: 4 };
+		const newLayout = { i: this.getNextLayoutKey(), ...getWidgetDefaultLayout(widgetInfo) };
 		const layout = [...this.state.layout, newLayout];
 
 		Storage.save('layout', layout);
@@ -114,11 +152,12 @@ class Dashboard extends Component {
 				const widgetData = this.props.widgetsData[index];
 				const props = {
 					...widgetData.props,
-					width: layout.w * 100,
-					height: layout.h * 34
+					width: layout.w * 30,
+					height: layout.h * 28
 				};
 				return (
 					<div key={layout.i} data-grid={layout} className='has-background-light'>
+						<p className='title is-6 is-marginless has-text-centered'>Title</p>
 						{React.createElement(widgetData.type, props)}
 						<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)} />
 					</div>
@@ -131,14 +170,15 @@ class Dashboard extends Component {
 				<ResponsiveReactGridLayout
 					className="layout"
 					rowHeight={25}
+					cols={40}
 					layouts={this.state.layout}
 					onLayoutChange={(layout) => this.onLayoutChange(layout)}
 					onResize={(layout, oldItem, newItem) => this.onResize(layout, newItem)}
 				>
 					{gridElements}
 				</ResponsiveReactGridLayout>
-				<ItemListWidget title={'Anticipated Games'} width={220} height={500} items={this.state.anticipated}
-					showModal={(item, elements) => this.props.showItemModal(item, elements)} />
+				{/* <ItemListWidget title={'Anticipated Games'} width={220} height={500} items={this.state.anticipated}
+					onClick={(item, elements) => this.props.showItemModal(item, elements)} /> */}
 				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal('showWidgetCreationModal')}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>

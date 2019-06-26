@@ -44,7 +44,10 @@ const formFields = [{
         }],
     }],
     news: [],
-    other: []
+    other: [{
+        options: ['Anticipated Games'],
+        label: 'Widget'
+    }]
 }];
 
 function getLabel(field) {

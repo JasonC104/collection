@@ -22,7 +22,7 @@ function Item(props) {
 	return (
 		<div>
 			<div className='item' onClick={() => props.showItemModal(modalItem, modalElements)}>
-				<img className='item-pic' src={item.imageUrl} alt={item.title} />
+				<img className='item-pic' src={item.imageUrl} alt={item.title} title={item.title} />
 				<div className='item-summary'>
 					{getBadges(item)}
 				</div>
