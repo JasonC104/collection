@@ -1,5 +1,22 @@
 @import "~react-datepicker/dist/react-datepicker.css";
 
+.modal-card {
+    width: 80% !important;
+    height: 80% !important;
+}
+
+.modal-pic {
+    box-shadow: 0px 0px 5px 2px lightgrey;
+}
+
+.modal-summary {
+    margin: 0px 10px;
+}
+
+.modal-card-head, .modal-card-foot {
+    padding: 10px !important;
+}
+
 .item-creation-steps {
     flex-grow: 2;
     cursor: default;
@@ -33,4 +50,11 @@
 
 .rating-icon {
     color: gold;
+}
+
+.widget-preview {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

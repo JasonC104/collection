@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormElement } from '../elements';
-import './styles/itemCreation.scss';
+import './styles.scss';
 
 function ItemCreationSearch(props) {
     const item = props.item;

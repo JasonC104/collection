@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Actions } from '../actions';
 import ItemModalSummary from './ItemModalSummary';
-import './styles/itemModal.scss';
+import './styles.scss';
 
 function ItemModal(props) {
 

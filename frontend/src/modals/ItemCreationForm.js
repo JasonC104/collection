@@ -2,7 +2,7 @@ import React from 'react';
 import DatePicker from "react-datepicker";
 import Rating from "react-rating";
 import { FormElement, Icon } from '../elements';
-import './styles/itemCreation.scss';
+import './styles.scss';
 
 function ItemCreationForm(props) {
     const item = props.item;
