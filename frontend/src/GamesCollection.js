@@ -37,20 +37,24 @@ class GamesCollection extends Component {
 		this.setState({ deleteClicked: !deleteClicked });
 	}
 
+	updateItem(id, key, value) {
+		const update = { [key]: value };
+		ItemApi.updateItem(id, update, () => this.getGames())
+		// update the item modal with the change otherwise it won't be refreshed
+		this.props.updateItemModal(update);
+	}
+
 	render() {
 		const gameElements = [];
 		for (let game of this.props.games) {
 			gameElements.push(
-				<Item key={game.title} item={game} deleteItem={i => ItemApi.deleteItem(i.id, () => this.getGames())} />
+				<Item key={game.title} item={game} updateItem={(key, value) => this.updateItem(game.id, key, value)} />
 			);
 		}
 
 		const activeTooltip = this.state.deleteClicked ? 'tooltip' : '';
 		const modalButtons = (
 			<div>
-				<button className='button is-success'>
-					<Icon icon='fas fa-edit' />
-				</button>
 				<button className={'button is-danger is-tooltip-left ' + activeTooltip}
 					data-tooltip='Click again to confirm delete' onClick={() => this.toggleDelete()}>
 					<Icon icon='fas fa-trash' />
@@ -69,7 +73,7 @@ class GamesCollection extends Component {
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, () => this.getGames())}
 					closeModal={() => this.closeModal()} />
-				<ItemModal footer={modalButtons}/>
+				<ItemModal footer={modalButtons} />
 			</div>
 		);
 	}
@@ -86,6 +90,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		setGames: (games) => dispatch(Actions.setGames(games)),
+		updateItemModal: (update) => dispatch(Actions.updateItemModal(update)),
 		closeItemModal: () => dispatch(Actions.closeItemModal()),
 	};
 }

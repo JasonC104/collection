@@ -9,19 +9,25 @@ function get(url, callback) {
 }
 
 export function getItems(requirements, callback) {
-    return axios.get('http://localhost:3001/api/items', { params: requirements })
+    return axios.get(`${baseUrl}/items`, { params: requirements })
         .then(response => callback(response.data))
         .catch(err => console.log(err));
 };
 
 export function createItem(newItem, callback) {
-    return axios.post('http://localhost:3001/api/items', newItem)
+    return axios.post(`${baseUrl}/items`, newItem)
+        .then(() => callback())
+        .catch(err => console.log(err));
+}
+
+export function updateItem(id, update, callback) {
+    return axios.put(`${baseUrl}/items`, { data: { id, ...update } })
         .then(() => callback())
         .catch(err => console.log(err));
 }
 
 export function deleteItem(id, callback) {
-    return axios.delete('http://localhost:3001/api/items', { data: { id } })
+    return axios.delete(`${baseUrl}/items`, { data: { id } })
         .then(() => callback())
         .catch(err => console.log(err));
 }

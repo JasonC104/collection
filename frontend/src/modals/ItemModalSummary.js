@@ -10,9 +10,15 @@ function ItemModalSummary(props) {
         let component = null;
 
         if (element.type === 'checkbox') {
+            let readonly = true;
+            let onChange = () => {};
+            if (element.readonly !== undefined && element.onChange !== undefined) {
+                readonly = element.readonly;
+                onChange = element.onChange;
+            }
             component = (
                 <label className="checkbox">
-                    <input readOnly type="checkbox" checked={value} />
+                    <input readOnly={readonly} type="checkbox" checked={value} onChange={e => onChange(element.key, e.target.checked)} />
                 </label>
             );
         } else if (element.type === 'text') {
@@ -25,8 +31,9 @@ function ItemModalSummary(props) {
                 </div>
             );
         } else if (element.type === 'rating') {
-            component = <Rating readonly initialRating={value}
-                emptySymbol="far fa-star fa-lg rating-icon" fullSymbol="fas fa-star fa-lg rating-icon" />;
+            const readonly = (element.readonly === undefined || element.onChange === undefined) ? true : element.readonly;
+            component = <Rating readonly={readonly} placeholderRating={value} onChange={value => element.onChange(element.key, value)}
+                emptySymbol="far fa-star fa-lg rating-icon" fullSymbol="fas fa-star fa-lg has-text-link" placeholderSymbol="fas fa-star fa-lg rating-icon" />;
         }
 
         return (

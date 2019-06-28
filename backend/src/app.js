@@ -13,7 +13,7 @@ app.use(cors());
 const router = express.Router();
 
 function connectToDatabase(dbRoute) {
-	mongoose.connect(dbRoute, { useNewUrlParser: true });
+	mongoose.connect(dbRoute, { useNewUrlParser: true, useFindAndModify: false });
 	const db = mongoose.connection;
 	db.once('open', () => console.log('connected to the database'));
 	db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -223,26 +223,25 @@ router.get('/items/csv', (req, res) => {
 	});
 });
 
-// this is our update method
-// this method overwrites existing data in our database
-// router.post("/updateData", (req, res) => {
-// 	const {
-// 		id,
-// 		update
-// 	} = req.body;
-// 	models.Game.findOneAndUpdate(id, update, err => {
-// 		if (err) return res.json({
-// 			success: false,
-// 			error: err
-// 		});
-// 		return res.json({
-// 			success: true
-// 		});
-// 	});
-// });
+router.put("/items", (req, res) => {
+	const body = req.body.data;
+	const update = {};
+	if (body.rating !== undefined) update.rating = body.rating;
+	if (body.completed !== undefined) update.completed = body.completed;
+	if (body.gift !== undefined) update.gift = body.gift;
 
-// this is our delete method
-// this method removes existing data in our database
+	if (Object.keys(update).length > 0) {
+		models.Game.findOneAndUpdate({ _id: body.id }, update, err => {
+			if (err) return res.send(err);
+			console.log(`updated ${body.id}`);
+			console.log(update);
+			return res.json({ success: true });
+		});
+	} else {
+		return res.send('No update');
+	}
+});
+
 router.delete('/items', (req, res) => {
 	models.Game.findOneAndDelete({ _id: req.body.id }, err => {
 		if (err) return res.send(err);
@@ -251,8 +250,6 @@ router.delete('/items', (req, res) => {
 	});
 });
 
-// this is our create method
-// this method adds new data in our database
 router.post('/items', async (req, res) => {
 	const item = req.body;
 	let imageHash;

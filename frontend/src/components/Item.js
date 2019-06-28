@@ -5,19 +5,18 @@ import { gameImageResize } from '../helpers';
 import { Icon } from '../elements';
 import './styles/item.scss';
 
-const modalElements = [
-	{ key: 'platform', label: 'Platform', type: 'text' },
-	{ key: 'cost', label: 'Cost', type: 'money' },
-	{ key: 'type', label: 'Type', type: 'text' },
-	{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
-	{ key: 'rating', label: 'Rating', type: 'rating' },
-	{ key: 'completed', label: 'Completed', type: 'checkbox' },
-	{ key: 'gift', label: 'Gift', type: 'checkbox' }
-];
-
 function Item(props) {
 	const item = props.item;
 	const modalItem = { ...item, imageUrl: gameImageResize(item.imageUrl, 't_720p') };
+	const modalElements = [
+		{ key: 'platform', label: 'Platform', type: 'text' },
+		{ key: 'cost', label: 'Cost', type: 'money' },
+		{ key: 'type', label: 'Type', type: 'text' },
+		{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
+		{ key: 'rating', label: 'Rating', type: 'rating', readonly: false, onChange: props.updateItem },
+		{ key: 'completed', label: 'Completed', type: 'checkbox', readonly: false, onChange: props.updateItem },
+		{ key: 'gift', label: 'Gift', type: 'checkbox', readonly: false, onChange: props.updateItem }
+	];
 
 	return (
 		<div>

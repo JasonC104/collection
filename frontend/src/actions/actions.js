@@ -32,6 +32,10 @@ export function showItemModal(item, elements) {
     return { type: ActionTypes.SHOW_ITEM_MODAL, item, elements };
 }
 
+export function updateItemModal(update) {
+    return { type: ActionTypes.UPDATE_ITEM_MODAL, update };
+}
+
 export function closeItemModal() {
     return { type: ActionTypes.CLOSE_ITEM_MODAL };
 }

@@ -15,6 +15,14 @@ export function modalsReducer(state, action) {
                     elements: action.elements
                 }
             };
+        case ActionTypes.UPDATE_ITEM_MODAL:
+            return {
+                ...state,
+                itemModal: {
+                    ...state.itemModal,
+                    item: { ...state.itemModal.item, ...action.update }
+                }
+            };
         case ActionTypes.CLOSE_ITEM_MODAL:
             return {
                 ...state,
