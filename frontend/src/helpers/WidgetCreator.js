@@ -6,8 +6,13 @@ export async function createItemList(widgetInfo, onClick) {
     const widgetType = widgetInfo['Widget'];
     switch (widgetType) {
         case 'Anticipated Games':
-            await ItemApi.anticipatedGames(anticipated => {
-                items = anticipated;
+            await ItemApi.anticipatedGames(games => {
+                items = games;
+            });
+            break;
+        case 'Highly Rated Games':
+            await ItemApi.highlyRated(games => {
+                items = games;
             });
             break;
         default:

@@ -105,16 +105,80 @@ router.get('/items', async (req, res) => {
 		});
 });
 
+function parseIgdbGame(e) {
+	const data = { igdbId: e.id };
+	data.title = e.name || '';
+	data.summary = e.summary || '';
+	data.imageUrl = (e.cover && e.cover.url) ? e.cover.url : '';
+	data.releaseDate = (e.first_release_date) ? convertDateToString(new Date(e.first_release_date * 1000)) : '';
+	data.platforms = (e.platforms) ? e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name) : [];
+	data.genres = (e.genres) ? e.genres.map(g => g.name) : [];
+	data.themes = (e.themes) ? e.themes.map(t => t.name) : [];
+	return data;
+}
+
 router.get('/search/:title', (req, res) => {
 	IgdbApi.searchGame(req.params.title).then(response => {
 		const data = [];
 		response.data.sort((a, b) => b.popularity - a.popularity).forEach(e => {
-			if (e.cover && e.cover.url && e.platforms) {
-				const imageUrl = e.cover.url.replace('t_thumb', 't_cover_small');
-				const platforms = e.platforms.map(p => {
-					return p.abbreviation ? p.abbreviation : p.name;
+			const d = parseIgdbGame(e);
+			if (d.imageUrl && d.platforms) {
+				data.push({
+					igdbId: d.igdbId,
+					imageUrl: d.imageUrl,
+					title: d.title,
+					platforms: d.platforms,
 				});
-				data.push({ igdbId: e.id, imageUrl, title: e.name, platforms });
+			}
+		});
+		return res.json(data);
+	}).catch(err => {
+		console.log(err);
+		return res.json(err);
+	});
+});
+
+router.get('/anticipated-games', (req, res) => {
+	IgdbApi.anticipatedGames().then(response => {
+		const data = [];
+		response.data.forEach(e => {
+			const d = parseIgdbGame(e);
+			if (d.imageUrl) {
+				data.push({
+					igdbId: d.igdbId,
+					imageUrl: d.imageUrl,
+					title: d.title,
+					platforms: d.platforms,
+					summary: d.summary,
+					releaseDate: d.releaseDate,
+					genres: d.genres,
+					themes: d.themes
+				});
+			}
+		});
+		return res.json(data);
+	}).catch(err => {
+		console.log(err);
+		return res.json(err);
+	});
+});
+
+router.get('/highly-rated-games', (req, res) => {
+	IgdbApi.highlyRated().then(response => {
+		const data = [];
+		response.data.forEach(e => {
+			const d = parseIgdbGame(e);
+			if (d.imageUrl) {
+				data.push({
+					igdbId: d.igdbId,
+					imageUrl: d.imageUrl,
+					title: d.title,
+					platforms: d.platforms,
+					summary: d.summary,
+					releaseDate: d.releaseDate,
+					genres: d.genres,
+					themes: d.themes
+				});
 			}
 		});
 		return res.json(data);
@@ -131,35 +195,6 @@ router.get('/items/csv', (req, res) => {
 		const csv = csvParser.itemDataToCsv(data);
 		res.attachment('item-data.csv');
 		return res.status(200).type('text/csv').send(csv);
-	});
-});
-
-router.get('/anticipated-games', (req, res) => {
-	IgdbApi.anticipatedGames().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			if (e.cover && e.cover.url && e.platforms && e.first_release_date) {
-				const summary = e.summary || '';
-				const platforms = e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name);
-				const releaseDate = convertDateToString(new Date(e.first_release_date * 1000));
-				const genres = e.genres ? e.genres.map(g => g.name) : [];
-				const themes = e.themes ? e.themes.map(t => t.name) : [];
-				data.push({
-					igdbId: e.id,
-					imageUrl: e.cover.url,
-					title: e.name, 
-					platforms, 
-					summary, 
-					releaseDate,
-					genres,
-					themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
 	});
 });
 

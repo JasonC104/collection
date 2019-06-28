@@ -29,3 +29,9 @@ export function anticipatedGames(callback) {
         .then(response => callback(response.data))
         .catch(err => console.log(err));
 }
+
+export function highlyRated(callback) {
+    return axios.get(`http://localhost:3001/api/highly-rated-games`)
+        .then(response => callback(response.data))
+        .catch(err => console.log(err));
+}

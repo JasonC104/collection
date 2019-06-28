@@ -3,10 +3,9 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import { connect } from 'react-redux';
 import * as Storage from './api/localStorage';
 import { Actions } from './actions';
-import { ChartCreator, WidgetCreator } from './helpers';
+import { ChartCreator, WidgetCreator, gameImageResize } from './helpers';
 import { Icon } from './elements';
 import { WidgetCreationModal, ItemModal } from './modals';
-import { ItemListWidget } from './widgets';
 import * as ItemApi from './api/itemApi';
 import './styles/dashboard.scss';
 
@@ -63,7 +62,23 @@ class Dashboard extends Component {
 			return data => this.handleClick(data);
 		} else if (widgetType === 'news') {
 		} else {
-			return (item, elements) => this.props.showItemModal(item, elements);
+			return item => {
+				const modalItem = {
+					...item,
+					imageUrl: gameImageResize(item.imageUrl, 't_720p'),
+					platforms: item.platforms.toString(),
+					genres: item.genres.toString(),
+					themes: item.themes.toString()
+				}
+				const modalElements = [
+					{ key: 'summary', label: 'Description', type: 'text' },
+					{ key: 'genres', label: 'Genres', type: 'text' },
+					{ key: 'themes', label: 'Themes', type: 'text' },
+					{ key: 'platforms', label: 'Platforms', type: 'text' },
+					{ key: 'releaseDate', label: 'Release Date', type: 'text' },
+				];
+				this.props.showItemModal(modalItem, modalElements);
+			}
 		}
 	}
 
