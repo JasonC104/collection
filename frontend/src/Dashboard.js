@@ -6,7 +6,6 @@ import { Actions } from './actions';
 import { ChartCreator, WidgetCreator, gameImageResize } from './helpers';
 import { Icon } from './elements';
 import { WidgetCreationModal, ItemModal } from './modals';
-import * as ItemApi from './api/itemApi';
 import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(RGL);
@@ -35,7 +34,7 @@ function getWidgetDefaultLayout(widgetInfo) {
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, anticipated: [] };
+		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, widgetDrag: false };
 	}
 
 	componentDidMount() {
@@ -43,15 +42,11 @@ class Dashboard extends Component {
 			layout: Storage.get('layout', []),
 			widgetsInfo: Storage.get('widgetsInfo', [])
 		}, () => this.calculateWidgetData());
-
-		ItemApi.anticipatedGames(anticipated => {
-			this.setState({ anticipated });
-		});
 	}
 
 	componentDidUpdate(prevProps) {
 		// calculate widget data if data has changed
-		if (this.state.widgetsInfo && prevProps.games.length != this.props.games.length) {
+		if (this.state.widgetsInfo && prevProps.games.length !== this.props.games.length) {
 			this.calculateWidgetData();
 		}
 	}
@@ -59,7 +54,10 @@ class Dashboard extends Component {
 	getWidgetOnClick(widgetInfo) {
 		const widgetType = widgetInfo['Widget Type'];
 		if (widgetType === 'chart') {
-			return data => this.handleClick(data);
+			return data => {
+				this.props.setGames(data.items);
+				this.props.history.push('/games');
+			}
 		} else if (widgetType === 'news') {
 		} else {
 			return item => {
@@ -143,11 +141,6 @@ class Dashboard extends Component {
 		this.setState({ layout, widgetsInfo });
 	}
 
-	handleClick(data) {
-		this.props.setGames(data.items);
-		this.props.history.push('/games');
-	}
-
 	getNextLayoutKey() {
 		const currentLayout = this.state.layout;
 		if (currentLayout.length === 0) return '0';
@@ -160,6 +153,20 @@ class Dashboard extends Component {
 		this.setState({ [modal]: !this.state[modal] });
 	}
 
+	startWidgetDrag() {
+		if (!this.state.widgetDrag) {
+			this.setState({ widgetDrag: true });
+		}
+	}
+
+	stopWidgetDrag() {
+		// set widget drag to false after 5 milliseconds. 
+		// This prevents triggering the widget's onClick function after dragging
+		if (this.state.widgetDrag) {
+			setTimeout(() => this.setState({ widgetDrag: false }), 500);
+		}
+	}
+
 	render() {
 		let gridElements = [];
 		if (this.props.widgetsData.length !== 0) {
@@ -170,6 +177,9 @@ class Dashboard extends Component {
 					width: layout.w * 30,
 					height: layout.h * 28
 				};
+				// remove the onClick function if the widget is being dragged
+				if (this.state.widgetDrag) props.onClick = null;
+
 				return (
 					<div key={layout.i} data-grid={layout} className='has-background-light'>
 						<p className='title is-6 is-marginless has-text-centered has-default-cursor'>{this.state.widgetsInfo[index].Title}</p>
@@ -189,11 +199,11 @@ class Dashboard extends Component {
 					layouts={this.state.layout}
 					onLayoutChange={(layout) => this.onLayoutChange(layout)}
 					onResize={(layout, oldItem, newItem) => this.onResize(layout, newItem)}
+					onDrag={() => this.startWidgetDrag()}
+					onDragStop={() => this.stopWidgetDrag()}
 				>
 					{gridElements}
 				</ResponsiveReactGridLayout>
-				{/* <ItemListWidget title={'Anticipated Games'} width={220} height={500} items={this.state.anticipated}
-					onClick={(item, elements) => this.props.showItemModal(item, elements)} /> */}
 				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal('showWidgetCreationModal')}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
