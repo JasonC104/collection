@@ -60,10 +60,6 @@ function getLabel(field) {
 
 class WidgetCreationForm extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     generateFormElements(fields) {
         const widgetInfo = this.props.widgetInfo;
         let form = [];

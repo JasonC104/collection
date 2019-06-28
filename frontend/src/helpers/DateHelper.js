@@ -1,4 +1,4 @@
-import { format, startOfMonth, subMonths } from 'date-fns'
+import { startOfMonth, subMonths } from 'date-fns'
 
 export function getLastMonths(n) {
     const months = [];

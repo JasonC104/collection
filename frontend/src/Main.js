@@ -11,10 +11,6 @@ import './styles/main.scss';
 
 class Main extends Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     componentDidMount() {
         ItemApi.getItems({}, response => {
             this.props.setGames(response.data);
@@ -43,27 +39,25 @@ class Main extends Component {
     }
 }
 
-class NavBarComponent extends Component {
-    render() {
-        // all of this is just to add the is-active className to the proper element  
-        const linkData = [['/', 'Dashboard'], ['/games', 'Games'], ['/movies', 'Movies']];
-        const links = linkData.map(([url, name]) => {
-            const activeClass = (this.props.location.pathname === url) ? 'is-active' : '';
-            return (
-                <li key={url} className={activeClass}>
-                    <Link to={url}>{name}</Link>
-                </li>
-            );
-        });
-
+function NavBarComponent(props) {
+    // all of this is just to add the is-active className to the proper tab  
+    const linkData = [['/', 'Dashboard'], ['/games', 'Games'], ['/movies', 'Movies']];
+    const links = linkData.map(([url, name]) => {
+        const activeClass = (props.location.pathname === url) ? 'is-active' : '';
         return (
-            <nav className="tabs is-boxed" >
-                <ul>
-                    {links}
-                </ul>
-            </nav>
+            <li key={url} className={activeClass}>
+                <Link to={url}>{name}</Link>
+            </li>
         );
-    }
+    });
+
+    return (
+        <nav className="tabs is-boxed" >
+            <ul>
+                {links}
+            </ul>
+        </nav>
+    );
 }
 
 function mapDispatchToProps(dispatch) {
