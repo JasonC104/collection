@@ -3,6 +3,7 @@ import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
 import { Icon, Steps } from '../elements';
 import * as ItemApi from '../api/itemApi';
+import { gameImageResize } from '../helpers';
 import './styles.scss';
 
 class ItemCreationModal extends React.Component {
@@ -53,7 +54,7 @@ class ItemCreationModal extends React.Component {
 			step,
 			item,
 			platforms: selectedItem.platforms,
-			imageUrl: selectedItem.imageUrl.replace('t_cover_small', 't_720p')
+			imageUrl: gameImageResize(selectedItem.imageUrl, 't_720p')
 		});
 	}
 
@@ -94,7 +95,7 @@ class ItemCreationModal extends React.Component {
 						Back
 					</button>
 					<button className='button is-success' disabled={!enableSave} onClick={() => this.createItem()}>
-						<Icon icon='fas fa-save'/>
+						<Icon icon='fas fa-save' />
 					</button>
 				</div>
 			);

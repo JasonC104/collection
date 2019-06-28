@@ -188,6 +188,31 @@ router.get('/highly-rated-games', (req, res) => {
 	});
 });
 
+router.get('/recently-released-games', (req, res) => {
+	IgdbApi.recentlyReleased().then(response => {
+		const data = [];
+		response.data.forEach(e => {
+			const d = parseIgdbGame(e);
+			if (d.imageUrl) {
+				data.push({
+					igdbId: d.igdbId,
+					imageUrl: d.imageUrl,
+					title: d.title,
+					platforms: d.platforms,
+					summary: d.summary,
+					releaseDate: d.releaseDate,
+					genres: d.genres,
+					themes: d.themes
+				});
+			}
+		});
+		return res.json(data);
+	}).catch(err => {
+		console.log(err);
+		return res.json(err);
+	});
+});
+
 router.get('/items/csv', (req, res) => {
 	models.Game.find().sort({ purchaseDate: 1 }).exec((err, data) => {
 		if (err) return res.json({ error: err });

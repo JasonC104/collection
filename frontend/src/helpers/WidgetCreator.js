@@ -15,6 +15,11 @@ export async function createItemList(widgetInfo, onClick) {
                 items = games;
             });
             break;
+        case 'Recently Released Games':
+            await ItemApi.recentlyReleased(games => {
+                items = games;
+            });
+            break;
         default:
             break;
     }

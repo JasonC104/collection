@@ -172,7 +172,7 @@ class Dashboard extends Component {
 				};
 				return (
 					<div key={layout.i} data-grid={layout} className='has-background-light'>
-						<p className='title is-6 is-marginless has-text-centered'>{this.state.widgetsInfo[index].Title}</p>
+						<p className='title is-6 is-marginless has-text-centered has-default-cursor'>{this.state.widgetsInfo[index].Title}</p>
 						{React.createElement(widgetData.type, props)}
 						<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)} />
 					</div>

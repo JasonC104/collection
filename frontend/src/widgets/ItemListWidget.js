@@ -11,10 +11,8 @@ function ItemListWidget(props) {
     });
 
     return (
-        <div className='is-flex' style={{height: '94%'}}>
-            <div className='item-list-widget' style={{ width: props.width }}>
-                {itemComponents}
-            </div>
+        <div className='item-list-widget' style={{ width: props.width, height: '94%' }}>
+            {itemComponents}
         </div>
     );
 }

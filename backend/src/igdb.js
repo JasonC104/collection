@@ -39,4 +39,15 @@ function highlyRated(limit=10) {
     return apiCall('/games', body);
 }
 
-module.exports = { searchGame, getGameCover, anticipatedGames, highlyRated };
+function recentlyReleased(limit=10) {
+    // get unix timestamp in seconds
+    const today = Math.floor(Date.now() / 1000);
+    const oneWeekAgo = today - 604800;
+    const body = `fields first_release_date, name, summary, cover.url, genres.name, themes.name, platforms.abbreviation, platforms.name;
+    limit ${limit};
+    where first_release_date > ${oneWeekAgo} & first_release_date < ${today};
+    sort popularity desc;`;
+    return apiCall('/games', body);
+}
+
+module.exports = { searchGame, getGameCover, anticipatedGames, highlyRated, recentlyReleased };

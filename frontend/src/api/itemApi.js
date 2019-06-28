@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+const baseUrl = 'http://localhost:3001/api';
+
+function get(url, callback) {
+    return axios.get(url)
+        .then(response => callback(response.data))
+        .catch(err => console.log(err));
+}
+
 export function getItems(requirements, callback) {
     return axios.get('http://localhost:3001/api/items', { params: requirements })
         .then(response => callback(response.data))
@@ -19,19 +27,17 @@ export function deleteItem(id, callback) {
 }
 
 export function searchItem(title, callback) {
-    return axios.get(`http://localhost:3001/api/search/${title}`)
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
+    return get(`${baseUrl}/search/${title}`, callback); 
 }
 
 export function anticipatedGames(callback) {
-    return axios.get(`http://localhost:3001/api/anticipated-games`)
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
+    return get(`${baseUrl}/anticipated-games`, callback); 
 }
 
 export function highlyRated(callback) {
-    return axios.get(`http://localhost:3001/api/highly-rated-games`)
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
+    return get(`${baseUrl}/highly-rated-games`, callback); 
+}
+
+export function recentlyReleased(callback) {
+    return get(`${baseUrl}/recently-released-games`, callback); 
 }

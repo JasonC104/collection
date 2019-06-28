@@ -11,7 +11,7 @@ const modalElements = [
 	{ key: 'type', label: 'Type', type: 'text' },
 	{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
 	{ key: 'rating', label: 'Rating', type: 'rating' },
-	{ key: 'checkbox', label: 'Completed', type: 'checkbox' },
+	{ key: 'completed', label: 'Completed', type: 'checkbox' },
 	{ key: 'gift', label: 'Gift', type: 'checkbox' }
 ];
 
