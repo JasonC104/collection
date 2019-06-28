@@ -1,7 +1,7 @@
 import * as ActionTypes from './actionTypes';
 
 export function changeGameRequirements(requirements) {
-    return { type: ActionTypes.CHANGE_GAME_REQUIREMENTS, payload: requirements };
+    return { type: ActionTypes.CHANGE_GAME_REQUIREMENTS, requirements };
 }
 
 export function removeGameRequirements() {
@@ -9,11 +9,11 @@ export function removeGameRequirements() {
 }
 
 export function setFilteredGames(games) {
-    return { type: ActionTypes.SET_FILTERED_GAMES, payload: games };
+    return { type: ActionTypes.SET_FILTERED_GAMES, games };
 }
 
 export function setGames(games) {
-    return { type: ActionTypes.SET_GAMES, payload: games };
+    return { type: ActionTypes.SET_GAMES, games };
 }
 
 export function addWidgetData(widgetData) {

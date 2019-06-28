@@ -77,7 +77,7 @@ class GamesCollection extends Component {
 
 function mapStateToProps(state) {
 	return {
-		gameRequirements: state.gameRequirements,
+		gameRequirements: state.itemRequirements.gameRequirements,
 		games: state.items.filteredGames,
 		itemModal: state.modals.itemModal
 	};

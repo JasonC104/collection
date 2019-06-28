@@ -12,9 +12,9 @@ class Toolbar extends React.Component {
     }
 
     updateRequirements(newRequirements) {
-        new Promise(resolve =>
+        (new Promise(resolve =>
             resolve(this.props.changeGameRequirements(newRequirements))
-        ).then(() => this.props.getGames());
+        )).then(() => this.props.getGames());
     }
 
     clearChanges() {
@@ -149,7 +149,7 @@ class Toolbar extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        gameRequirements: state.gameRequirements,
+        gameRequirements: state.itemRequirements.gameRequirements,
     };
 }
 
