@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import WidgetCreationForm from './WidgetCreationForm';
 import { ChartCreator, WidgetCreator } from '../helpers';
+import { FormElement } from '../elements';
+import './styles.scss';
 
 class WidgetCreationModal extends React.Component {
     constructor(props) {
@@ -33,13 +35,21 @@ class WidgetCreationModal extends React.Component {
             case 'chart':
                 const dataset = this.props[widgetInfo['Data Set']];
                 const widget = ChartCreator.createWidgetData(dataset, widgetInfo, null);
-                this.setState({ showWidget: true, widget });
+                this.setState({
+                    showWidget: true,
+                    widget,
+                    widgetInfo: { ...widgetInfo, Title: widgetInfo['Chart Type'] }
+                });
                 break;
             case 'news':
                 break;
             case 'other':
                 WidgetCreator.createItemList(widgetInfo, () => { }).then(widget => {
-                    this.setState({ showWidget: true, widget });
+                    this.setState({
+                        showWidget: true,
+                        widget,
+                        widgetInfo: { ...widgetInfo, Title: widgetInfo.Widget }
+                    });
                 });
                 break;
             default:
@@ -54,7 +64,15 @@ class WidgetCreationModal extends React.Component {
         let widget = <div></div>;
         let enableAddWidgetButton = false;
         if (this.state.showWidget) {
-            widget = React.createElement(this.state.widget.type, this.state.widget.props);
+            widget = (
+                <div className='widget-preview'>
+                    <FormElement label='Title'>
+                        <input name='Title' className='input' type='text' autoComplete="off"
+                            value={this.state.widgetInfo['Title']} onChange={e => this.handleChange(e)} />
+                    </FormElement>
+                    {React.createElement(this.state.widget.type, this.state.widget.props)}
+                </div>
+            );
             enableAddWidgetButton = true;
         }
 

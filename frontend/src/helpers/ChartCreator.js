@@ -61,7 +61,7 @@ export function createBarWidgetData(dataset, widgetInfo, handleClick) {
 			dataKey: [...dataKey],
 			colours: COLOURS,
 			onClick: handleClick,
-			width: 500,
+			width: 400,
 			height: 200
 		}
 	}
