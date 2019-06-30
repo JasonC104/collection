@@ -34,7 +34,7 @@ function getWidgetDefaultLayout(widgetInfo) {
 class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, widgetDrag: false };
+		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, widgetClick: false, widgetDrag: false };
 	}
 
 	componentDidMount() {
@@ -154,16 +154,27 @@ class Dashboard extends Component {
 	}
 
 	startWidgetDrag() {
-		if (!this.state.widgetDrag) {
+		if (!this.state.widgetClick) {
+			this.setState({ widgetClick: true });
+		} else if (!this.state.widgetDrag) {
 			this.setState({ widgetDrag: true });
 		}
 	}
 
+	/**
+	 * If we are clicking, we want to reset the state right away. If we do a timeout, 
+	 * then there could be the case where the state will attempt to change when we are 
+	 * on another page (like if we click a chart)
+	 * 
+	 * If we are dragging, we want to reset the state after a set time because we do not
+	 * want to accidently trigger the widget's onClick function after we stop dragging.
+	 */
 	stopWidgetDrag() {
-		// set widget drag to false after 5 milliseconds. 
-		// This prevents triggering the widget's onClick function after dragging
+		const widgetState = { widgetClick: false, widgetDrag: false };
 		if (this.state.widgetDrag) {
-			setTimeout(() => this.setState({ widgetDrag: false }), 500);
+			setTimeout(() => this.setState(widgetState), 500);
+		} else if (this.state.widgetClick) {
+			this.setState(widgetState);
 		}
 	}
 
@@ -178,7 +189,7 @@ class Dashboard extends Component {
 					height: layout.h * 28
 				};
 				// remove the onClick function if the widget is being dragged
-				if (this.state.widgetDrag) props.onClick = null;
+				if (this.state.widgetDrag) props.onClick = () => { };
 
 				return (
 					<div key={layout.i} data-grid={layout} className='has-background-light'>
