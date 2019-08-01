@@ -1,39 +1,20 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const models = require('./data');
-const IgdbApi = require('./igdb');
+const models = require('./db/models/game');
+const IgdbApi = require('./api/igdb');
 const csvParser = require('./csv-parser');
+const GamesController = require('./controllers/gamesController');
+const Utils = require('./utils');
 
-const API_PORT = 3001;
 const app = express();
 app.use(cors());
 const router = express.Router();
-
-function connectToDatabase(dbRoute) {
-	mongoose.connect(dbRoute, { useNewUrlParser: true, useFindAndModify: false });
-	const db = mongoose.connection;
-	db.once('open', () => console.log('connected to the database'));
-	db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-}
-
-// connects to the database
-if (process.env.NODE_ENV.trim() == 'production') {
-	connectToDatabase(process.env.DB_ROUTE_PROD);
-} else {
-	connectToDatabase(process.env.DB_ROUTE_DEV);
-}
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-function convertDateToString(date) {
-	return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
-}
 
 function generateItemViewModel(e) {
 	const purchaseDate = convertDateToString(e.purchaseDate);
@@ -117,101 +98,11 @@ function parseIgdbGame(e) {
 	return data;
 }
 
-router.get('/search/:title', (req, res) => {
-	IgdbApi.searchGame(req.params.title).then(response => {
-		const data = [];
-		response.data.sort((a, b) => b.popularity - a.popularity).forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl && d.platforms) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
+router.get('/search/:title', GamesController.searchGames);
 
-router.get('/anticipated-games', (req, res) => {
-	IgdbApi.anticipatedGames().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/highly-rated-games', (req, res) => {
-	IgdbApi.highlyRated().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/recently-released-games', (req, res) => {
-	IgdbApi.recentlyReleased().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
+router.get('/games/anticipated', GamesController.getAnticipatedGames);
+router.get('/games/highly-rated', GamesController.getHighlyRatedGames);
+router.get('/games/recently-released', GamesController.getRecentlyReleasedGames);
 
 router.get('/items/csv', (req, res) => {
 	models.Game.find().sort({ purchaseDate: 1 }).exec((err, data) => {
@@ -289,5 +180,4 @@ router.post('/items', async (req, res) => {
 // append /api for our http requests
 app.use('/api', router);
 
-// launch our backend into a port
-app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
+module.exports = app;

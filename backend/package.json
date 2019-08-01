@@ -4,8 +4,9 @@
   "description": "backend",
   "main": "index.js",
   "scripts": {
-    "start": "SET NODE_ENV=local & node src\\app.js",
-    "prod": "SET NODE_ENV=production & node src\\app.js"
+    "start": "SET NODE_ENV=local & node ./server.js",
+    "prod": "SET NODE_ENV=production & node ./server.js",
+    "test": "SET NODE_ENV=test & mocha ./tests --recursive --exit"
   },
   "author": "Jason C",
   "license": "ISC",
@@ -18,5 +19,12 @@
     "express": "^4.16.4",
     "json2csv": "^4.5.1",
     "mongoose": "^5.5.8"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "mockgoose": "^8.0.2",
+    "node-mocks-http": "^1.7.6",
+    "proxyquire": "^2.1.1"
   }
 }

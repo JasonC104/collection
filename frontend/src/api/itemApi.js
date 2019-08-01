@@ -37,13 +37,13 @@ export function searchItem(title, callback) {
 }
 
 export function anticipatedGames(callback) {
-    return get(`${baseUrl}/anticipated-games`, callback); 
+    return get(`${baseUrl}/games/anticipated`, callback); 
 }
 
 export function highlyRated(callback) {
-    return get(`${baseUrl}/highly-rated-games`, callback); 
+    return get(`${baseUrl}/games/highly-rated`, callback); 
 }
 
 export function recentlyReleased(callback) {
-    return get(`${baseUrl}/recently-released-games`, callback); 
+    return get(`${baseUrl}/games/recently-released`, callback); 
 }
