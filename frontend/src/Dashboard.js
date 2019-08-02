@@ -3,7 +3,7 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import { connect } from 'react-redux';
 import * as Storage from './api/localStorage';
 import { Actions } from './actions';
-import { ChartCreator, WidgetCreator, gameImageResize } from './helpers';
+import { ChartCreator, WidgetCreator } from './helpers';
 import { Icon } from './elements';
 import { WidgetCreationModal, ItemModal } from './modals';
 import './styles/dashboard.scss';
@@ -61,20 +61,14 @@ class Dashboard extends Component {
 		} else if (widgetType === 'news') {
 		} else {
 			return item => {
-				const modalItem = {
-					...item,
-					platforms: item.platforms.toString(),
-					genres: item.genres.toString(),
-					themes: item.themes.toString()
-				}
 				const modalElements = [
 					{ key: 'summary', label: 'Description', type: 'text' },
-					{ key: 'genres', label: 'Genres', type: 'text' },
-					{ key: 'themes', label: 'Themes', type: 'text' },
-					{ key: 'platforms', label: 'Platforms', type: 'text' },
+					{ key: 'genres', label: 'Genres', type: 'list' },
+					{ key: 'themes', label: 'Themes', type: 'list' },
+					{ key: 'platforms', label: 'Platforms', type: 'list' },
 					{ key: 'releaseDate', label: 'Release Date', type: 'text' },
 				];
-				this.props.showItemModal(modalItem, modalElements);
+				this.props.showItemModal(item, modalElements);
 			}
 		}
 	}

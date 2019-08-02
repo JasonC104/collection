@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Actions } from '../actions';
-import { gameImageResize } from '../helpers';
 import { Icon } from '../elements';
 import './styles/item.scss';
 
@@ -14,7 +13,10 @@ function Item(props) {
 		{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
 		{ key: 'rating', label: 'Rating', type: 'rating', readonly: false, onChange: props.updateItem },
 		{ key: 'completed', label: 'Completed', type: 'checkbox', readonly: false, onChange: props.updateItem },
-		{ key: 'gift', label: 'Gift', type: 'checkbox', readonly: false, onChange: props.updateItem }
+		{ key: 'gift', label: 'Gift', type: 'checkbox', readonly: false, onChange: props.updateItem },
+		{ key: 'summary', label: 'Description', type: 'text' },
+		{ key: 'genres', label: 'Genres', type: 'list' },
+		{ key: 'themes', label: 'Themes', type: 'list' }
 	];
 
 	return (

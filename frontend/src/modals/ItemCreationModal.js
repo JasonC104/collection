@@ -3,7 +3,6 @@ import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
 import { Icon, Steps } from '../elements';
 import * as ItemApi from '../api/itemApi';
-import { gameImageResize } from '../helpers';
 import './styles.scss';
 
 class ItemCreationModal extends React.Component {

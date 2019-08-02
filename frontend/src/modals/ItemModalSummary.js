@@ -23,6 +23,8 @@ function ItemModalSummary(props) {
             );
         } else if (element.type === 'text') {
             component = <p>{value}</p>;
+        } else if (element.type === 'list') {
+            component = <p>{value.toString()}</p>;
         } else if (element.type === 'money') {
             component = (
                 <div className='is-flex'>

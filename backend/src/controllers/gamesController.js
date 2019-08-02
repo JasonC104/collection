@@ -11,10 +11,12 @@ Game.find({})
         if (err) { console.log(err); return; }
 
         igdbCache = {};
-        const igdbIds = data.map(e => e.igdbId).join(',');
-        getAndParse(IgdbApi.getGamesInfo, igdbIds)
-            .then(data => data.forEach(e => igdbCache[e.igdbId] = e))
-            .catch(err => console.log(err));
+        while (data.length > 0) {
+            const igdbIds = data.splice(0, 10).map(e => e.igdbId).join(',');
+            getAndParse(IgdbApi.getGamesInfo, igdbIds)
+                .then(data => data.forEach(e => igdbCache[e.igdbId] = e))
+                .catch(err => console.log(err));
+        }
     });
 
 function getImageUrl(size, imageId) {
