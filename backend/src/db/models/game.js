@@ -11,14 +11,11 @@ const GameSchema = new mongoose.Schema(
         completed: { type: Boolean, default: false },
         gift: { type: Boolean, default: false },
         links: { type: [String], default: [] },
-        igdb: {
-            id: { type: Number, required: true },
-            imageHash: { type: String, required: true }
-        }
+        igdbId: { type: Number, required: true }
     },
     {
         timestamps: true
     }
 );
 
-module.exports = { Game: mongoose.model('Game', GameSchema) };
+module.exports = mongoose.model('Game', GameSchema);

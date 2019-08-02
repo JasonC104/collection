@@ -76,14 +76,18 @@ class Toolbar extends React.Component {
             );
         });
 
-        const sortOptions = ['date', 'title', 'rating'].map(option => {
+        const sortOptions = [
+            { label: 'Purchase Date', value: 'purchaseDate' },
+            { label: 'Title', value: 'title' },
+            { label: 'Rating', value: 'rating' }
+        ].map(option => {
             return (
-                <div key={option} className="dropdown-option" >
+                <div key={option.value} className="dropdown-option" >
                     <Icon className='dropdown-icon is-small' icon='fas fa-angle-up fa-lg'
-                        onClick={() => this.handleSort(option, 'asc')} />
+                        onClick={() => this.handleSort(option.value, 'asc')} />
                     <Icon className='dropdown-icon is-small' icon='fas fa-angle-down fa-lg'
-                        onClick={() => this.handleSort(option, 'desc')} />
-                    <p>{option}</p>
+                        onClick={() => this.handleSort(option.value, 'desc')} />
+                    <p>{option.label}</p>
                 </div>
             )
         });
@@ -140,7 +144,7 @@ class Toolbar extends React.Component {
                 </p>
 
                 <p className="toolbar-item">
-                    <a className='button is-link' href='http://localhost:3001/api/items/csv' download>Export to CSV</a>
+                    <a className='button is-link' href='http://localhost:3001/api/games/csv' download>Export to CSV</a>
                 </p>
             </div>
         );
