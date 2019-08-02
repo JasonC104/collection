@@ -22,7 +22,6 @@ class ItemCreationModal extends React.Component {
 				completed: false,
 				gift: false
 			},
-			imageUrl: '',
 			platforms: [],
 			searchResults: []
 		};
@@ -48,13 +47,13 @@ class ItemCreationModal extends React.Component {
 			...this.initialState.item,
 			igdbId: selectedItem.igdbId,
 			title: selectedItem.title,
-			platform: selectedItem.platforms[0]
+			platform: selectedItem.platforms[0],
+			image: selectedItem.image
 		}
 		this.setState({
 			step,
 			item,
 			platforms: selectedItem.platforms,
-			imageUrl: gameImageResize(selectedItem.imageUrl, 't_720p')
 		});
 	}
 
@@ -86,7 +85,7 @@ class ItemCreationModal extends React.Component {
 			modalBody = <ItemCreationSearch item={item} searchResults={this.state.searchResults} handleChange={(e) => this.handleChange(e)}
 				nextStep={(i) => this.goToFormStep(i)} search={() => this.searchItem()} />;
 		} else {
-			modalBody = <ItemCreationForm item={item} imageUrl={this.state.imageUrl} platforms={this.state.platforms}
+			modalBody = <ItemCreationForm item={item} platforms={this.state.platforms}
 				handleChange={(e) => this.handleChange(e)} />;
 			const enableSave = validateItem(item);
 			modalButtons = (

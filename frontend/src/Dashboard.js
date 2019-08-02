@@ -63,7 +63,6 @@ class Dashboard extends Component {
 			return item => {
 				const modalItem = {
 					...item,
-					imageUrl: gameImageResize(item.imageUrl, 't_720p'),
 					platforms: item.platforms.toString(),
 					genres: item.genres.toString(),
 					themes: item.themes.toString()

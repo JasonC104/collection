@@ -7,7 +7,6 @@ import './styles/item.scss';
 
 function Item(props) {
 	const item = props.item;
-	const modalItem = { ...item, imageUrl: gameImageResize(item.imageUrl, 't_720p') };
 	const modalElements = [
 		{ key: 'platform', label: 'Platform', type: 'text' },
 		{ key: 'cost', label: 'Cost', type: 'money' },
@@ -20,8 +19,8 @@ function Item(props) {
 
 	return (
 		<div>
-			<div className='item' onClick={() => props.showItemModal(modalItem, modalElements)}>
-				<img className='item-pic' src={item.imageUrl} alt={item.title} title={item.title} />
+			<div className='item' onClick={() => props.showItemModal(item, modalElements)}>
+				<img className='item-pic' src={item.image.uniform} alt={item.title} title={item.title} />
 				<div className='item-summary'>
 					{getBadges(item)}
 				</div>

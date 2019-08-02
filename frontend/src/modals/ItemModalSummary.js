@@ -46,7 +46,7 @@ function ItemModalSummary(props) {
     return (
         <div className='is-flex' style={{ width: '100%' }}>
             <div style={{ width: '300px' }}>
-                <img className='modal-pic' src={item.imageUrl} alt={item.title} />
+                <img className='modal-pic' src={item.image.portrait} alt={item.title} />
             </div>
             <div style={{ marginLeft: '10px', width: '100%' }}>
                 <h1 className='title'>{item.title}</h1>

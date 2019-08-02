@@ -10,7 +10,7 @@ function ItemCreationSearch(props) {
         searchItems = props.searchResults.map(result => {
             return (
                 <div key={result.igdbId} className='search-item' onClick={() => props.nextStep(result)}>
-                    <img className='item-creation-img' src={result.imageUrl} alt={result.title} />
+                    <img className='item-creation-img' src={result.image.thumb} alt={result.title} />
                     <p className='search-item-title'>{result.title}</p>
                 </div>
             );

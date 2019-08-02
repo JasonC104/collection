@@ -52,7 +52,7 @@ function parseIgdbGame(e) {
         { label: 'portrait', size: '720p' },
         { label: 'uniform', size: 'cover_uniform' },
         { label: 'thumb', size: 'thumb' }
-    ].forEach(i => data.image[i.label] = getImageUrl(i.size, e.cover.image_id));
+    ].forEach(i => data.image[i.label] = (e.cover && e.cover.image_id) ? getImageUrl(i.size, e.cover.image_id) : '');
 
     return data;
 }
