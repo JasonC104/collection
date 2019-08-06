@@ -1,20 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const models = require('./db/models/game');
-const IgdbApi = require('./api/igdb');
-const csvParser = require('./csv-parser');
 const GamesController = require('./controllers/gamesController');
-const Utils = require('./utils');
+const MoviesController = require('./controllers/moviesController');
 
 const app = express();
-app.use(cors());
 const router = express.Router();
 
-// (optional) only made for logging and
-// bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use('/api', router);
+app.use(cors());
+
+/////////////// Games ///////////////
 
 router.get('/games', GamesController.getGamesCollection);
 router.post('/games', GamesController.addGameToCollection);
@@ -29,7 +27,17 @@ router.get('/games/recently-released', GamesController.getRecentlyReleasedGames)
 
 router.get('/games/csv', GamesController.exportGamesToCsv);
 
-// append /api for our http requests
-app.use('/api', router);
+/////////////// Movies ///////////////
+
+router.get('/movies', MoviesController.getCollection);
+router.post('/movies', MoviesController.addToCollection);
+router.put("/movies", MoviesController.updateItemInCollection);
+router.delete('/movies/:id', MoviesController.deleteFromCollection);
+
+router.get('/movies/search/:title', MoviesController.search);
+
+router.get('/movies/anticipated', MoviesController.getAnticipated);
+router.get('/movies/popular', MoviesController.getPopular);
+router.get('/movies/recently-released', MoviesController.getRecentlyReleased);
 
 module.exports = app;

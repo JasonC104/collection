@@ -50,11 +50,12 @@ function parseIgdbGame(e) {
     if (e.popularity) data.popularity = e.popularity;
 
     data.image = {};
-    [
-        { label: 'portrait', size: '720p' },
-        { label: 'uniform', size: 'cover_uniform' },
-        { label: 'thumb', size: 'thumb' }
-    ].forEach(i => data.image[i.label] = (e.cover && e.cover.image_id) ? getImageUrl(i.size, e.cover.image_id) : '');
+    if (e.cover && e.cover.image_id)
+        [
+            { label: 'portrait', size: '720p' },
+            { label: 'uniform', size: 'cover_uniform' },
+            { label: 'thumb', size: 'thumb' }
+        ].forEach(i => data.image[i.label] = getImageUrl(i.size, e.cover.image_id));
 
     return data;
 }
