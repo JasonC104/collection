@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Actions } from '../actions';
 import { Icon } from '../elements';
+import 'lazysizes';
 import './styles/item.scss';
 
 function Item(props) {
@@ -22,7 +23,7 @@ function Item(props) {
 	return (
 		<div>
 			<div className='item' onClick={() => props.showItemModal(item, modalElements)}>
-				<img className='item-pic' src={item.image.uniform} alt={item.title} title={item.title} />
+				<img className='lazyload item-pic' data-src={item.image.uniform} src='/apple.png' alt={item.title} title={item.title} />
 				<div className='item-summary'>
 					{getBadges(item)}
 				</div>

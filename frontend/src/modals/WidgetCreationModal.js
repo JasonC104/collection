@@ -58,9 +58,9 @@ class WidgetCreationModal extends React.Component {
     }
 
     render() {
+        if (!this.props.active) return null;
 
         const props = this.props;
-        const active = props.active ? 'is-active' : '';
         let widget = <div></div>;
         let enableAddWidgetButton = false;
         if (this.state.showWidget) {
@@ -77,7 +77,7 @@ class WidgetCreationModal extends React.Component {
         }
 
         return (
-            <div className={'modal ' + active}>
+            <div className='modal is-active'>
                 <div className='modal-background' onClick={() => props.closeModal()} />
                 <form className='modal-card' style={{ width: '80%', height: '80%' }} onSubmit={e => this.previewWidget(e)}>
                     <header className='modal-card-head'>

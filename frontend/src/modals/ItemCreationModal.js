@@ -73,9 +73,10 @@ class ItemCreationModal extends React.Component {
 	}
 
 	render() {
+		if (!this.props.active) return null;
+
 		const item = this.state.item;
 		const props = this.props;
-		const active = props.active ? 'is-active' : '';
 		const stepData = [[1, 'Select the game'], [2, 'Complete the form']];
 
 		let modalBody = null;
@@ -100,7 +101,7 @@ class ItemCreationModal extends React.Component {
 		}
 
 		return (
-			<div className={'modal ' + active}>
+			<div className='modal is-active'>
 				<div className='modal-background' onClick={() => props.closeModal()} />
 				<div className='modal-card' style={{ width: '80%', height: '80%' }}>
 					<header className='modal-card-head'>
