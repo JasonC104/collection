@@ -9,23 +9,23 @@ const router = express.Router();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/api', router);
 app.use(cors());
+app.use('/api', router);
 
 /////////////// Games ///////////////
 
-router.get('/games', GamesController.getGamesCollection);
-router.post('/games', GamesController.addGameToCollection);
-router.put("/games", GamesController.updateGameInCollection);
-router.delete('/games/:id', GamesController.deleteGameFromCollection);
+router.get('/games', GamesController.getCollection);
+router.post('/games', GamesController.addToCollection);
+router.put("/games", GamesController.updateItemInCollection);
+router.delete('/games/:id', GamesController.deleteFromCollection);
 
-router.get('/games/search/:title', GamesController.searchGames);
+router.get('/games/search/:title', GamesController.search);
 
-router.get('/games/anticipated', GamesController.getAnticipatedGames);
-router.get('/games/highly-rated', GamesController.getHighlyRatedGames);
-router.get('/games/recently-released', GamesController.getRecentlyReleasedGames);
+router.get('/games/anticipated', GamesController.getAnticipated);
+router.get('/games/highly-rated', GamesController.getHighlyRated);
+router.get('/games/recently-released', GamesController.getRecentlyReleased);
 
-router.get('/games/csv', GamesController.exportGamesToCsv);
+router.get('/games/csv', GamesController.exportToCsv);
 
 /////////////// Movies ///////////////
 

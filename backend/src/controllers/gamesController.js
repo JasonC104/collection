@@ -1,7 +1,8 @@
-const IgdbApi = require('../api/igdb');
+const Api = require('../api/igdb');
 const csvParser = require('../csv-parser');
 const Game = require('../db/models/game');
 const convertDateToString = require('../utils').convertDateToString;
+const handleError = require('../utils').handleError;
 
 // populate igdbCache on startup. 
 let igdbCache = {}; // { [igdbId]: dataObject }
@@ -13,15 +14,11 @@ Game.find({})
         igdbCache = {};
         while (data.length > 0) {
             const igdbIds = data.splice(0, 10).map(e => e.igdbId).join(',');
-            getAndParse(IgdbApi.getGamesInfo, igdbIds)
+            Api.getItem(igdbIds)
                 .then(data => data.forEach(e => igdbCache[e.igdbId] = e))
                 .catch(err => console.log(err));
         }
     });
-
-function getImageUrl(size, imageId) {
-    return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`;
-}
 
 function parseDatabaseGame(e) {
     return {
@@ -39,46 +36,9 @@ function parseDatabaseGame(e) {
     };
 }
 
-function parseIgdbGame(e) {
-    const data = { igdbId: e.id };
-    data.title = e.name || '';
-    data.summary = e.summary || '';
-    data.releaseDate = (e.first_release_date) ? convertDateToString(new Date(e.first_release_date * 1000)) : '';
-    data.platforms = (e.platforms) ? e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name) : [];
-    data.genres = (e.genres) ? e.genres.map(g => g.name) : [];
-    data.themes = (e.themes) ? e.themes.map(t => t.name) : [];
-    if (e.popularity) data.popularity = e.popularity;
-
-    data.image = {};
-    if (e.cover && e.cover.image_id)
-        [
-            { label: 'portrait', size: '720p' },
-            { label: 'uniform', size: 'cover_uniform' },
-            { label: 'thumb', size: 'thumb' }
-        ].forEach(i => data.image[i.label] = getImageUrl(i.size, e.cover.image_id));
-
-    return data;
-}
-
-/**
- * Performs the api call with the params and returns the parsed data
- * @param {*} apiCall 
- * @param  {...any} params 
- */
-function getAndParse(apiCall, ...params) {
-    return new Promise((resolve, reject) => {
-        apiCall(...params)
-            .then(response => {
-                resolve(
-                    response.data.map(e => parseIgdbGame(e))
-                );
-            }).catch(err => { console.log(err); reject(err); });
-    });
-}
-
 /////////////// Exported Functions ///////////////
 
-function getGamesCollection(req, res) {
+function getCollection(req, res) {
     const query = req.query;
     const requirements = {};
 
@@ -100,7 +60,7 @@ function getGamesCollection(req, res) {
     Game.find(requirements)
         .sort(sortRequirements)
         .exec((err, data) => {
-            if (err) { console.log(err); return res.json({ error: err }) };
+            if (err) return handleError(res, err);
 
             const result = data.map(e => {
                 // merge the igdb information with the record in the db 
@@ -111,41 +71,42 @@ function getGamesCollection(req, res) {
         });
 }
 
-function addGameToCollection(req, res) {
+function addToCollection(req, res) {
     const item = req.body;
-    // TODO data validation
-    const game = new Game({
-        title: item.title,
-        platform: item.platform,
-        cost: item.cost,
-        purchaseDate: item.purchaseDate,
-        type: item.type,
-        completed: item.completed,
-        gift: item.gift,
-        rating: item.rating,
-        links: item.links,
-        igdbId: item.igdbId
-    });
 
     // add igdb information on the new game to the cache
-    getAndParse(IgdbApi.getGamesInfo, item.igdbId)
+    Api.getItem(item.igdbId)
         .then(data => {
-            if (data.length === 1)
-                return data[0];
-            res.json('Invalid igdb id');
+            if (data.length === 1) return data[0];
+
+            res.status(400).json('Invalid igdb id');
             return Promise.reject('Invalid igdb id');
         }).then(data => {
+            // TODO data validation
+            const game = new Game({
+                title: item.title,
+                platform: item.platform,
+                cost: item.cost,
+                purchaseDate: item.purchaseDate,
+                type: item.type,
+                completed: item.completed,
+                gift: item.gift,
+                rating: item.rating,
+                links: item.links,
+                igdbId: item.igdbId
+            });
+
             game.save((err, doc) => {
-                if (err) { console.log(err); return res.json({ error: err }); }
+                if (err) return handleError(res, err)
 
                 console.log(doc);
                 igdbCache[data.igdbId] = data;
                 return res.json({ success: true });
             });
-        }).catch(err => console.log(err));
+        }).catch(err => handleError(res, err));
 }
 
-function updateGameInCollection(req, res) {
+function updateItemInCollection(req, res) {
     const body = req.body;
     if (!body.id) return res.status(400).json('id must be given');
 
@@ -156,22 +117,23 @@ function updateGameInCollection(req, res) {
 
     if (Object.keys(update).length > 0) {
         Game.findOneAndUpdate({ _id: body.id }, update, err => {
-            if (err) return res.send(err);
+            if (err) return handleError(res, err);
+
             console.log(`updated ${body.id}`);
             console.log(update);
             return res.json({ success: true });
         });
     } else {
-        return res.send('No update');
+        return res.json('No update');
     }
 }
 
-function deleteGameFromCollection(req, res) {
+function deleteFromCollection(req, res) {
     const id = req.params.id;
     if (!id) return res.status(400).json('id must be given');
 
     Game.findOneAndDelete({ _id: id }, (err, data) => {
-        if (err) { console.log(err); return res.send(err) };
+        if (err) return handleError(res, err);
 
         console.log(`deleted ${id}`);
         console.log(data);
@@ -179,37 +141,35 @@ function deleteGameFromCollection(req, res) {
     });
 }
 
-function searchGames(req, res) {
-    getAndParse(IgdbApi.searchGame, req.params.title)
-        .then(data => res.json(
-            data.sort((a, b) => b.popularity - a.popularity)
-        ))
-        .catch(err => res.json(err));
-}
-
-function getAnticipatedGames(req, res) {
-    getAndParse(IgdbApi.anticipatedGames)
+function search(req, res) {
+    Api.search(req.params.title)
         .then(data => res.json(data))
-        .catch(err => res.json(err));
+        .catch(err => handleError(res, err));
 }
 
-function getHighlyRatedGames(req, res) {
-    getAndParse(IgdbApi.highlyRated)
+function getAnticipated(req, res) {
+    Api.getAnticipated()
         .then(data => res.json(data))
-        .catch(err => res.json(err));
+        .catch(err => handleError(res, err));
 }
 
-function getRecentlyReleasedGames(req, res) {
-    getAndParse(IgdbApi.recentlyReleased)
+function getHighlyRated(req, res) {
+    Api.getHighlyRated()
         .then(data => res.json(data))
-        .catch(err => res.json(err));
+        .catch(err => handleError(res, err));
 }
 
-function exportGamesToCsv(req, res) {
+function getRecentlyReleased(req, res) {
+    Api.getRecentlyReleased()
+        .then(data => res.json(data))
+        .catch(err => handleError(res, err));
+}
+
+function exportToCsv(req, res) {
     Game.find()
         .sort({ purchaseDate: 1 })
         .exec((err, data) => {
-            if (err) { console.log(err); return res.json({ error: err }) };
+            if (err) return handleError(res, err);
 
             const csv = csvParser.itemDataToCsv(data);
             res.attachment('item-data.csv');
@@ -218,6 +178,6 @@ function exportGamesToCsv(req, res) {
 }
 
 module.exports = {
-    getGamesCollection, addGameToCollection, updateGameInCollection, deleteGameFromCollection,
-    searchGames, getAnticipatedGames, getHighlyRatedGames, getRecentlyReleasedGames, exportGamesToCsv
+    getCollection, addToCollection, updateItemInCollection, deleteFromCollection,
+    search, getAnticipated, getHighlyRated, getRecentlyReleased, exportToCsv
 };

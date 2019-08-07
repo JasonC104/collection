@@ -1,6 +1,7 @@
 const Api = require('../api/tmdb');
 const Movie = require('../db/models/movie');
 const convertDateToString = require('../utils').convertDateToString;
+const handleError = require('../utils').handleError;
 
 function parseDatabaseItem(e) {
     const image = {};
@@ -47,7 +48,7 @@ function getCollection(req, res) {
     Movie.find(requirements)
         //.sort(sortRequirements)
         .exec((err, data) => {
-            if (err) { console.log(err); return res.json({ error: err }) };
+            if (err) return handleError(res, err);
 
             const parsedData = data.map(e => parseDatabaseItem(e));
             return res.json(parsedData);
@@ -72,13 +73,12 @@ function addToCollection(req, res) {
             });
 
             movie.save((err, doc) => {
-                if (err) { console.log(err); return res.status(500).json('An error occurred'); }
+                if (err) return handleError(res, err);
 
                 console.log(doc);
                 return res.json({ success: true });
             });
-        })
-        .catch(err => { console.log(err); return res.status(500).json('An error occurred'); });
+        }).catch(err => handleError(res, err));
 }
 
 function updateItemInCollection(req, res) {
@@ -90,13 +90,14 @@ function updateItemInCollection(req, res) {
 
     if (Object.keys(update).length > 0) {
         Movie.findOneAndUpdate({ _id: body.id }, update, err => {
-            if (err) return res.send(err);
+            if (err) return handleError(res, err);
+
             console.log(`updated ${body.id}`);
             console.log(update);
             return res.json({ success: true });
         });
     } else {
-        return res.send('No update');
+        return res.json('No update');
     }
 }
 
@@ -105,7 +106,7 @@ function deleteFromCollection(req, res) {
     if (!id) return res.status(400).json('id must be given');
 
     Movie.findOneAndDelete({ _id: id }, (err, data) => {
-        if (err) { console.log(err); return res.send(err) };
+        if (err) return handleError(res, err);
 
         console.log(`deleted ${id}`);
         console.log(data);
@@ -116,25 +117,25 @@ function deleteFromCollection(req, res) {
 function search(req, res) {
     Api.search(req.params.title)
         .then(data => res.json(data))
-        .catch(err => { console.log(err); res.status(500).json('An error occured') });
+        .catch(err => handleError(res, err));
 }
 
 function getAnticipated(req, res) {
     Api.getAnticipated()
         .then(data => res.json(data))
-        .catch(err => { console.log(err); res.status(500).json('An error occured') });
+        .catch(err => handleError(res, err));
 }
 
 function getPopular(req, res) {
     Api.getPopular()
         .then(data => res.json(data))
-        .catch(err => { console.log(err); res.status(500).json('An error occured') });
+        .catch(err => handleError(res, err));
 }
 
 function getRecentlyReleased(req, res) {
     Api.getRecentlyReleased()
         .then(data => res.json(data))
-        .catch(err => { console.log(err); res.status(500).json('An error occured') });
+        .catch(err => handleError(res, err));
 }
 
 module.exports = {

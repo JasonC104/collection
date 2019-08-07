@@ -7,4 +7,14 @@ function convertDateToString(date) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
 }
 
-module.exports = { convertDateToString };
+/**
+ * Logs the error and returns a response with status 500
+ * @param {*} response 
+ * @param {*} error 
+ */
+function handleError(response, error) {
+    console.log(error);
+    return response.status(500).json('An error occured')
+}
+
+module.exports = { convertDateToString, handleError };

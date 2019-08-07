@@ -1,14 +1,41 @@
 const axios = require('axios');
+const convertDateToString = require('../utils').convertDateToString;
 
 const baseUrl = process.env.IGDB_API_URL;
 const headers = { 'Accept': 'application/json', 'user-key': process.env.IGDB_KEY };
 
-function apiCall(endpoint, body) {
-    const url = `${baseUrl}${endpoint}`;
-    return axios.post(url, body, { headers });
+function getImageUrl(size, imageId) {
+    return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`;
 }
 
-function getGamesInfo(igdbIds) {
+function parse(e) {
+    const data = { igdbId: e.id };
+    data.title = e.name || '';
+    data.summary = e.summary || '';
+    data.releaseDate = (e.first_release_date) ? convertDateToString(new Date(e.first_release_date * 1000)) : '';
+    data.platforms = (e.platforms) ? e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name) : [];
+    data.genres = (e.genres) ? e.genres.map(g => g.name) : [];
+    data.themes = (e.themes) ? e.themes.map(t => t.name) : [];
+    if (e.popularity) data.popularity = e.popularity;
+
+    data.image = {};
+    if (e.cover && e.cover.image_id)
+        [
+            { label: 'portrait', size: '720p' },
+            { label: 'uniform', size: 'cover_uniform' },
+            { label: 'thumb', size: 'thumb' }
+        ].forEach(i => data.image[i.label] = getImageUrl(i.size, e.cover.image_id));
+
+    return data;
+}
+
+function apiCall(endpoint, body) {
+    const url = `${baseUrl}${endpoint}`;
+    return axios.post(url, body, { headers })
+        .then(response => response.data.map(e => parse(e)));
+}
+
+function getItem(igdbIds) {
     const body = `
         fields cover.image_id,summary,genres.name,themes.name;
         where id = (${igdbIds});
@@ -16,21 +43,17 @@ function getGamesInfo(igdbIds) {
     return apiCall('/games', body);
 }
 
-function searchGame(title) {
+function search(title) {
     const body = `
         fields name, popularity, cover.image_id, platforms.abbreviation, platforms.name;
         search "${title}";
         limit 10;
     `;
-    return apiCall('/games', body);
+    return apiCall('/games', body)
+        .then(data => data.sort((a, b) => b.popularity - a.popularity));
 }
 
-// function getGameCover(id) {
-//     const body = `fields cover.image_id; where id = ${id};`;
-//     return apiCall('/games', body);
-// }
-
-function anticipatedGames(limit = 10) {
+function getAnticipated(limit = 10) {
     // get unix timestamp in seconds
     const today = Math.floor(Date.now() / 1000);
     const body = `
@@ -42,7 +65,7 @@ function anticipatedGames(limit = 10) {
     return apiCall('/games', body);
 }
 
-function highlyRated(limit = 10) {
+function getHighlyRated(limit = 10) {
     // get unix timestamp in seconds
     const today = Math.floor(Date.now() / 1000);
     const oneYearAgo = today - 31536000;
@@ -55,7 +78,7 @@ function highlyRated(limit = 10) {
     return apiCall('/games', body);
 }
 
-function recentlyReleased(limit = 10) {
+function getRecentlyReleased(limit = 10) {
     // get unix timestamp in seconds
     const today = Math.floor(Date.now() / 1000);
     const oneWeekAgo = today - 604800;
@@ -68,4 +91,4 @@ function recentlyReleased(limit = 10) {
     return apiCall('/games', body);
 }
 
-module.exports = { getGamesInfo, searchGame, anticipatedGames, highlyRated, recentlyReleased };
+module.exports = { getItem, search, getAnticipated, getHighlyRated, getRecentlyReleased };
