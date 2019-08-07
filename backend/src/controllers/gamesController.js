@@ -107,7 +107,7 @@ function getGamesCollection(req, res) {
                 const game = { ...igdbCache[e.igdbId], ...parseDatabaseGame(e) };
                 return game;
             });
-            return res.json({ data: result });
+            return res.json(result);
         });
 }
 
@@ -147,6 +147,8 @@ function addGameToCollection(req, res) {
 
 function updateGameInCollection(req, res) {
     const body = req.body;
+    if (!body.id) return res.status(400).json('id must be given');
+
     const update = {};
     if (body.rating !== undefined && typeof body.rating === 'number') update.rating = body.rating;
     if (body.completed !== undefined && typeof body.completed === 'boolean') update.completed = body.completed;
@@ -165,10 +167,13 @@ function updateGameInCollection(req, res) {
 }
 
 function deleteGameFromCollection(req, res) {
-    Game.findOneAndDelete({ _id: req.body.id }, (err, data) => {
+    const id = req.params.id;
+    if (!id) return res.status(400).json('id must be given');
+
+    Game.findOneAndDelete({ _id: id }, (err, data) => {
         if (err) { console.log(err); return res.send(err) };
 
-        console.log(`deleted ${req.body.id}`);
+        console.log(`deleted ${id}`);
         console.log(data);
         return res.json({ success: true });
     });

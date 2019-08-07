@@ -17,7 +17,7 @@ app.use(cors());
 router.get('/games', GamesController.getGamesCollection);
 router.post('/games', GamesController.addGameToCollection);
 router.put("/games", GamesController.updateGameInCollection);
-router.delete('/games', GamesController.deleteGameFromCollection);
+router.delete('/games/:id', GamesController.deleteGameFromCollection);
 
 router.get('/games/search/:title', GamesController.searchGames);
 

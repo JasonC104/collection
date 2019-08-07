@@ -50,7 +50,7 @@ function getCollection(req, res) {
             if (err) { console.log(err); return res.json({ error: err }) };
 
             const parsedData = data.map(e => parseDatabaseItem(e));
-            return res.json({ data: parsedData });
+            return res.json(parsedData);
         });
 }
 

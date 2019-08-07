@@ -10,7 +10,7 @@ function get(url, callback) {
 
 export function getItems(requirements, callback) {
     return axios.get(`${baseUrl}/games`, { params: requirements })
-        .then(response => callback(response.data))
+        .then(response => callback(response))
         .catch(err => console.log(err));
 };
 
@@ -21,13 +21,13 @@ export function createItem(newItem, callback) {
 }
 
 export function updateItem(id, update, callback) {
-    return axios.put(`${baseUrl}/games`, { data: { id, ...update } })
+    return axios.put(`${baseUrl}/games`, { id, ...update })
         .then(() => callback())
         .catch(err => console.log(err));
 }
 
 export function deleteItem(id, callback) {
-    return axios.delete(`${baseUrl}/games`, { data: { id } })
+    return axios.delete(`${baseUrl}/games/${id}`)
         .then(() => callback())
         .catch(err => console.log(err));
 }
