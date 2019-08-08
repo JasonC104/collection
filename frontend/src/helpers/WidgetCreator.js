@@ -1,4 +1,4 @@
-import * as ItemApi from '../api/itemApi';
+import { GamesApi } from '../api';
 import { ItemListWidget } from '../widgets';
 
 export async function createItemList(widgetInfo, onClick) {
@@ -6,17 +6,17 @@ export async function createItemList(widgetInfo, onClick) {
     const widgetType = widgetInfo['Widget'];
     switch (widgetType) {
         case 'Anticipated Games':
-            await ItemApi.anticipatedGames(games => {
+            await GamesApi.anticipatedGames(games => {
                 items = games;
             });
             break;
         case 'Popular Games':
-            await ItemApi.highlyRated(games => {
+            await GamesApi.popular(games => {
                 items = games;
             });
             break;
         case 'Recently Released Games':
-            await ItemApi.recentlyReleased(games => {
+            await GamesApi.recentlyReleased(games => {
                 items = games;
             });
             break;

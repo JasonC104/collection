@@ -1,49 +1,59 @@
 import axios from 'axios';
 
-const baseUrl = 'http://localhost:3001/api';
+export default class ItemApi {
 
-function get(url, callback) {
-    return axios.get(url)
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
-}
+    constructor(endpoint) {
+        this.baseUrl = `http://localhost:3001/api${endpoint}`;
+    }
 
-export function getItems(requirements, callback) {
-    return axios.get(`${baseUrl}/games`, { params: requirements })
-        .then(response => callback(response))
-        .catch(err => console.log(err));
-};
+    /**
+     * Performs a GET request at the url
+     * @param {String} url 
+     * @param {Object} params 
+     * @param {*} callback 
+     */
+    get(url, params, callback) {
+        return axios.get(url, { params })
+            .then(response => callback(response.data))
+            .catch(err => console.log(err));
+    }
 
-export function createItem(newItem, callback) {
-    return axios.post(`${baseUrl}/games`, newItem)
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    getItems(requirements, callback) {
+        return this.get(`${this.baseUrl}`, requirements, callback);
+    };
 
-export function updateItem(id, update, callback) {
-    return axios.put(`${baseUrl}/games`, { id, ...update })
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    createItem(newItem, callback) {
+        return axios.post(`${this.baseUrl}`, newItem)
+            .then(() => callback())
+            .catch(err => console.log(err));
+    }
 
-export function deleteItem(id, callback) {
-    return axios.delete(`${baseUrl}/games/${id}`)
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    updateItem(id, update, callback) {
+        return axios.put(`${this.baseUrl}`, { id, ...update })
+            .then(() => callback())
+            .catch(err => console.log(err));
+    }
 
-export function searchItem(title, callback) {
-    return get(`${baseUrl}/games/search/${title}`, callback); 
-}
+    deleteItem(id, callback) {
+        return axios.delete(`${this.baseUrl}/${id}`)
+            .then(() => callback())
+            .catch(err => console.log(err));
+    }
 
-export function anticipatedGames(callback) {
-    return get(`${baseUrl}/games/anticipated`, callback); 
-}
+    searchItem(title, callback) {
+        return this.get(`${this.baseUrl}/search/${title}`, {}, callback);
+    }
 
-export function highlyRated(callback) {
-    return get(`${baseUrl}/games/highly-rated`, callback); 
-}
+    anticipatedGames(callback) {
+        return this.get(`${this.baseUrl}/anticipated`, {}, callback);
+    }
 
-export function recentlyReleased(callback) {
-    return get(`${baseUrl}/games/recently-released`, callback); 
+    popular(callback) {
+        return this.get(`${this.baseUrl}/popular`, {}, callback);
+    }
+
+    recentlyReleased(callback) {
+        return this.get(`${this.baseUrl}/recently-released`, {}, callback);
+    }
+
 }

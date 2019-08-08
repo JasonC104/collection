@@ -6,14 +6,14 @@ import { Actions } from './actions';
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
-import * as ItemApi from './api/itemApi';
+import { GamesApi } from './api';
 import './styles/main.scss';
 
 class Main extends Component {
 
     componentDidMount() {
-        ItemApi.getItems({}, response => {
-            this.props.setGames(response.data);
+        GamesApi.getItems({}, response => {
+            this.props.setGames(response);
         });
     }
 

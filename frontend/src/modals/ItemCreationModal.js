@@ -2,7 +2,7 @@ import React from 'react';
 import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
 import { Icon, Steps } from '../elements';
-import * as ItemApi from '../api/itemApi';
+import { GamesApi } from '../api';
 import './styles.scss';
 
 class ItemCreationModal extends React.Component {
@@ -67,7 +67,7 @@ class ItemCreationModal extends React.Component {
 	}
 
 	searchItem() {
-		ItemApi.searchItem(this.state.item.title, searchResults => {
+		GamesApi.searchItem(this.state.item.title, searchResults => {
 			this.setState({ searchResults })
 		});
 	}

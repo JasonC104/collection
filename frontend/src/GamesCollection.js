@@ -4,7 +4,7 @@ import { Actions } from './actions';
 import Item from './components/Item';
 import { ItemCreationModal, ItemModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
-import * as ItemApi from './api/itemApi';
+import { GamesApi } from './api';
 import { Icon } from './elements';
 import './styles/collection.scss';
 
@@ -15,8 +15,8 @@ class GamesCollection extends Component {
 	}
 
 	getGames() {
-		ItemApi.getItems(this.props.gameRequirements, response => {
-			this.props.setGames(response.data);
+		GamesApi.getItems(this.props.gameRequirements, response => {
+			this.props.setGames(response);
 		});
 	}
 
@@ -31,7 +31,7 @@ class GamesCollection extends Component {
 	toggleDelete() {
 		const deleteClicked = this.state.deleteClicked;
 		if (deleteClicked) {
-			ItemApi.deleteItem(this.props.itemModal.item.id, () => this.getGames());
+			GamesApi.deleteItem(this.props.itemModal.item.id, () => this.getGames());
 			this.props.closeItemModal();
 		}
 		this.setState({ deleteClicked: !deleteClicked });
@@ -39,7 +39,7 @@ class GamesCollection extends Component {
 
 	updateItem(id, key, value) {
 		const update = { [key]: value };
-		ItemApi.updateItem(id, update, () => this.getGames())
+		GamesApi.updateItem(id, update, () => this.getGames())
 		// update the item modal with the change otherwise it won't be refreshed
 		this.props.updateItemModal(update);
 	}
@@ -71,7 +71,7 @@ class GamesCollection extends Component {
 				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<ItemCreationModal active={this.state.showModal} createItem={i => ItemApi.createItem(i, () => this.getGames())}
+				<ItemCreationModal active={this.state.showModal} createItem={i => GamesApi.createItem(i, () => this.getGames())}
 					closeModal={() => this.closeModal()} />
 				<ItemModal footer={modalButtons} />
 			</div>

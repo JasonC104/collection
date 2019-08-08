@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import RGL, { WidthProvider } from "react-grid-layout";
 import { connect } from 'react-redux';
-import * as Storage from './api/localStorage';
+import { Storage } from './api';
 import { Actions } from './actions';
 import { ChartCreator, WidgetCreator } from './helpers';
 import { Icon } from './elements';
