@@ -45,7 +45,7 @@ const formFields = [{
     }],
     news: [],
     other: [{
-        options: ['Anticipated Games', 'Highly Rated Games', 'Recently Released Games'],
+        options: ['Anticipated Games', 'Popular Games', 'Recently Released Games'],
         label: 'Widget'
     }]
 }];

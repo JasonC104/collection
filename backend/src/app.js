@@ -22,7 +22,7 @@ router.delete('/games/:id', GamesController.deleteFromCollection);
 router.get('/games/search/:title', GamesController.search);
 
 router.get('/games/anticipated', GamesController.getAnticipated);
-router.get('/games/highly-rated', GamesController.getHighlyRated);
+router.get('/games/popular', GamesController.getPopular);
 router.get('/games/recently-released', GamesController.getRecentlyReleased);
 
 router.get('/games/csv', GamesController.exportToCsv);

@@ -10,7 +10,7 @@ export async function createItemList(widgetInfo, onClick) {
                 items = games;
             });
             break;
-        case 'Highly Rated Games':
+        case 'Popular Games':
             await ItemApi.highlyRated(games => {
                 items = games;
             });

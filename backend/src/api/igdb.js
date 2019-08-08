@@ -78,6 +78,26 @@ function getHighlyRated(limit = 10) {
     return apiCall('/games', body);
 }
 
+/**
+ * Gets popular games  
+ * @param {number} limit the number of results to retrieve
+ */
+function getPopular(limit = 10) {
+    // get unix timestamp in seconds
+    const today = Math.floor(Date.now() / 1000);
+    const oneMonthAgo = today - 2592000;
+    // Condition checks for popular games released in North America or WorldWide within the past month
+    // However, games released in another region first and then released in NA/World in this month, will not appear
+    const body = `
+        fields first_release_date, name, summary, cover.image_id, genres.name, themes.name, platforms.abbreviation, platforms.name;
+        limit ${10};
+        where first_release_date > ${oneMonthAgo} & first_release_date < ${today} & 
+        release_dates.date > ${oneMonthAgo} & release_dates.date < ${today} & release_dates.region = (2,8);
+        sort popularity desc;
+    `;
+    return apiCall('/games', body);
+}
+
 function getRecentlyReleased(limit = 10) {
     // get unix timestamp in seconds
     const today = Math.floor(Date.now() / 1000);
@@ -91,4 +111,4 @@ function getRecentlyReleased(limit = 10) {
     return apiCall('/games', body);
 }
 
-module.exports = { getItem, search, getAnticipated, getHighlyRated, getRecentlyReleased };
+module.exports = { getItem, search, getAnticipated, getHighlyRated, getPopular, getRecentlyReleased };

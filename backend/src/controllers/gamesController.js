@@ -159,6 +159,12 @@ function getHighlyRated(req, res) {
         .catch(err => handleError(res, err));
 }
 
+function getPopular(req, res) {
+    Api.getPopular()
+        .then(data => res.json(data))
+        .catch(err => handleError(res, err));
+}
+
 function getRecentlyReleased(req, res) {
     Api.getRecentlyReleased()
         .then(data => res.json(data))
@@ -179,5 +185,5 @@ function exportToCsv(req, res) {
 
 module.exports = {
     getCollection, addToCollection, updateItemInCollection, deleteFromCollection,
-    search, getAnticipated, getHighlyRated, getRecentlyReleased, exportToCsv
+    search, getAnticipated, getHighlyRated, getPopular, getRecentlyReleased, exportToCsv
 };
