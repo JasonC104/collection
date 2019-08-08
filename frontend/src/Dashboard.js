@@ -78,7 +78,7 @@ class Dashboard extends Component {
 
 		const widgetsData = [];
 		for (let widgetInfo of this.state.widgetsInfo) {
-			const onClick = this.getWidgetOnClick(widgetInfo);;
+			const onClick = this.getWidgetOnClick(widgetInfo);
 			if (widgetInfo['Widget Type'] === 'chart') {
 				const dataset = this.props[widgetInfo['Data Set']];
 				widgetsData.push(ChartCreator.createWidgetData(dataset, widgetInfo, onClick));
@@ -231,7 +231,6 @@ function getItemModalFooter() {
 
 function mapStateToProps(state) {
 	return {
-		games: state.items.games,
 		widgetsData: state.widgetsData
 	};
 }

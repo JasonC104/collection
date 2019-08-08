@@ -1,42 +1,38 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route, Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Link, Switch } from "react-router-dom";
 import { withRouter } from "react-router";
-import { connect } from 'react-redux';
-import { Actions } from './actions';
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
 import { GamesApi } from './api';
 import './styles/main.scss';
 
-class Main extends Component {
+function Main() {
+    const [games, setGames] = useState([]);
+    useEffect(() => {
+        GamesApi.getItems({}, response => setGames(response));
+    }, []);
 
-    componentDidMount() {
-        GamesApi.getItems({}, response => {
-            this.props.setGames(response);
-        });
-    }
-
-    render() {
-        const NavBar = withRouter(NavBarComponent);
-        return (
-            <div className='main'>
-                <BrowserRouter>
-                    <div className='header'>
-                        <h1 className='title is-marginless'>Collection</h1>
-                        <NavBar />
-                    </div>
+    const NavBar = withRouter(NavBarComponent);
+    return (
+        <div className='main'>
+            <BrowserRouter>
+                <div className='header'>
+                    <h1 className='title is-marginless'>Collection</h1>
+                    <NavBar />
+                </div>
+                <Switch>
                     <Route path="/" exact render={props =>
-                        <Dashboard {...props} />
+                        <Dashboard {...props} games={games} />
                     } />
                     <Route path="/games" render={props =>
-                        <GamesCollection />
+                        <GamesCollection games={games} setGames={setGames} />
                     } />
                     <Route path="/movies" component={MoviesCollection} />
-                </BrowserRouter>
-            </div>
-        );
-    }
+                </Switch>
+            </BrowserRouter>
+        </div>
+    );
 }
 
 function NavBarComponent(props) {
@@ -60,10 +56,4 @@ function NavBarComponent(props) {
     );
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        setGames: (games) => dispatch(Actions.setGames(games))
-    };
-}
-
-export default connect(null, mapDispatchToProps)(Main);
+export default Main;

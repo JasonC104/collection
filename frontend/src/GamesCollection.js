@@ -15,9 +15,7 @@ class GamesCollection extends Component {
 	}
 
 	getGames() {
-		GamesApi.getItems(this.props.gameRequirements, response => {
-			this.props.setGames(response);
-		});
+		GamesApi.getItems(this.props.gameRequirements, response => this.props.setGames(response));
 	}
 
 	showModal() {
@@ -38,19 +36,20 @@ class GamesCollection extends Component {
 	}
 
 	updateItem(id, key, value) {
-		const update = { [key]: value };
-		GamesApi.updateItem(id, update, () => this.getGames())
+		const update = { id, [key]: value };
+		GamesApi.updateItem(update, () => this.getGames())
 		// update the item modal with the change otherwise it won't be refreshed
 		this.props.updateItemModal(update);
 	}
 
 	render() {
-		const gameElements = [];
-		for (let game of this.props.games) {
-			gameElements.push(
-				<Item key={game.title} item={game} updateItem={(key, value) => this.updateItem(game.id, key, value)} />
-			);
-		}
+		// if there are filters/sort/search or filtered games is populated, then get the filtered games, otherwise get all games
+		const games = (Object.keys(this.props.gameRequirements).length || this.props.filteredGames.length)
+			? this.props.filteredGames : this.props.games;
+
+		const gameComponents = games.map(game =>
+			<Item key={game.title} item={game} updateItem={(key, value) => this.updateItem(game.id, key, value)} />
+		);
 
 		const activeTooltip = this.state.deleteClicked ? 'tooltip' : '';
 		const modalButtons = (
@@ -66,7 +65,7 @@ class GamesCollection extends Component {
 			<div>
 				<Toolbar getGames={() => this.getGames()} />
 				<div className='item-group'>
-					{gameElements}
+					{gameComponents}
 				</div>
 				<div className='new-item-btn button is-link is-large' onClick={() => this.showModal()}>
 					<Icon icon='fas fa-plus fa-lg' />
@@ -82,14 +81,13 @@ class GamesCollection extends Component {
 function mapStateToProps(state) {
 	return {
 		gameRequirements: state.itemRequirements.gameRequirements,
-		games: state.items.filteredGames,
+		filteredGames: state.items.filteredGames,
 		itemModal: state.modals.itemModal
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
-		setGames: (games) => dispatch(Actions.setGames(games)),
 		updateItemModal: (update) => dispatch(Actions.updateItemModal(update)),
 		closeItemModal: () => dispatch(Actions.closeItemModal()),
 	};

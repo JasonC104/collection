@@ -28,8 +28,8 @@ export default class ItemApi {
             .catch(err => console.log(err));
     }
 
-    updateItem(id, update, callback) {
-        return axios.put(`${this.baseUrl}`, { id, ...update })
+    updateItem(update, callback) {
+        return axios.put(`${this.baseUrl}`, update)
             .then(() => callback())
             .catch(err => console.log(err));
     }

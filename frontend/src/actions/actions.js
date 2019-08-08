@@ -12,10 +12,6 @@ export function setFilteredGames(games) {
     return { type: ActionTypes.SET_FILTERED_GAMES, games };
 }
 
-export function setGames(games) {
-    return { type: ActionTypes.SET_GAMES, games };
-}
-
 export function addWidgetData(widgetData) {
     return { type: ActionTypes.ADD_WIDGET_DATA, widgetData };
 }
