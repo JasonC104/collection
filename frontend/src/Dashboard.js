@@ -211,7 +211,8 @@ class Dashboard extends Component {
 				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal('showWidgetCreationModal')}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<WidgetCreationModal active={this.state.showWidgetCreationModal} addWidget={(info, data) => this.addWidget(info, data)}
+				<WidgetCreationModal active={this.state.showWidgetCreationModal} games={this.props.games}
+					addWidget={(info, data) => this.addWidget(info, data)}
 					closeModal={() => this.toggleModal('showWidgetCreationModal')} />
 				<ItemModal footer={getItemModalFooter()} />
 			</div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import ItemCreationSearch from './ItemCreationSearch';
 import ItemCreationForm from './ItemCreationForm';
+import { Modal } from '.';
 import { Icon, Steps } from '../elements';
 import { GamesApi } from '../api';
 import './styles.scss';
@@ -77,7 +78,7 @@ class ItemCreationModal extends React.Component {
 
 		const item = this.state.item;
 		const props = this.props;
-		const stepData = [[1, 'Select the game'], [2, 'Complete the form']];
+		const stepData = [[1, 'Select the game'], [2, 'Fill the form']];
 
 		let modalBody = null;
 		let modalButtons = null;
@@ -101,24 +102,14 @@ class ItemCreationModal extends React.Component {
 		}
 
 		return (
-			<div className='modal is-active'>
-				<div className='modal-background' onClick={() => props.closeModal()} />
-				<div className='modal-card' style={{ width: '80%', height: '80%' }}>
-					<header className='modal-card-head'>
-						<p className='modal-card-title'>Create a new entry</p>
-						<div className='item-creation-steps'>
-							<Steps className='has-gaps has-width-250' stepData={stepData} currentStep={this.state.step} />
-						</div>
-						<button className='delete' onClick={() => props.closeModal()} />
-					</header>
-					<section className='modal-card-body is-flex'>
-						{modalBody}
-					</section>
-					<footer className='modal-card-foot is-flex-end'>
-						{modalButtons}
-					</footer>
-				</div>
-			</div>
+			<Modal
+				active={true}
+				title='Create a new entry'
+				closeModal={props.closeModal}
+				header={<Steps stepData={stepData} currentStep={this.state.step} />}
+				body={modalBody}
+				footer={modalButtons}
+			/>
 		);
 	}
 }
