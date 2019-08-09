@@ -5,13 +5,13 @@ import Item from './components/Item';
 import { ItemCreationModal, ItemModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
 import { GamesApi } from './api';
-import { Icon } from './elements';
+import { Icon, TwoClickButton } from './elements';
 import './styles/collection.scss';
 
 class GamesCollection extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { showModal: false, deleteClicked: false };
+		this.state = { showModal: false };
 	}
 
 	getGames() {
@@ -27,12 +27,8 @@ class GamesCollection extends Component {
 	}
 
 	toggleDelete() {
-		const deleteClicked = this.state.deleteClicked;
-		if (deleteClicked) {
-			GamesApi.deleteItem(this.props.itemModal.item.id, () => this.getGames());
-			this.props.closeItemModal();
-		}
-		this.setState({ deleteClicked: !deleteClicked });
+		GamesApi.deleteItem(this.props.itemModal.item.id, () => this.getGames());
+		this.props.closeItemModal();
 	}
 
 	updateItem(id, key, value) {
@@ -51,16 +47,6 @@ class GamesCollection extends Component {
 			<Item key={game.title} item={game} updateItem={(key, value) => this.updateItem(game.id, key, value)} />
 		);
 
-		const activeTooltip = this.state.deleteClicked ? 'tooltip' : '';
-		const modalButtons = (
-			<div>
-				<button className={'button is-danger is-tooltip-left ' + activeTooltip}
-					data-tooltip='Click again to confirm delete' onClick={() => this.toggleDelete()}>
-					<Icon icon='fas fa-trash' />
-				</button>
-			</div>
-		);
-
 		return (
 			<div>
 				<Toolbar getGames={() => this.getGames()} />
@@ -72,7 +58,11 @@ class GamesCollection extends Component {
 				</div>
 				<ItemCreationModal active={this.state.showModal} createItem={i => GamesApi.createItem(i, () => this.getGames())}
 					closeModal={() => this.closeModal()} />
-				<ItemModal footer={modalButtons} />
+				<ItemModal footer={
+					<TwoClickButton className='is-danger' onClick={() => this.toggleDelete()}>
+						<Icon icon='fas fa-trash' />
+					</TwoClickButton>
+				} />
 			</div>
 		);
 	}
