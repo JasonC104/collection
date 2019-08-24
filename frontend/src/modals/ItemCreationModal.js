@@ -67,8 +67,8 @@ class ItemCreationModal extends React.Component {
 		this.setState(this.initialState);
 	}
 
-	searchItem() {
-		GamesApi.searchItem(this.state.item.title, searchResults => {
+	searchItem(searchText) {
+		GamesApi.searchItem(searchText, searchResults => {
 			this.setState({ searchResults })
 		});
 	}
@@ -83,8 +83,8 @@ class ItemCreationModal extends React.Component {
 		let modalBody = null;
 		let modalButtons = null;
 		if (this.state.step === 0) {
-			modalBody = <ItemCreationSearch item={item} searchResults={this.state.searchResults} handleChange={(e) => this.handleChange(e)}
-				nextStep={(i) => this.goToFormStep(i)} search={() => this.searchItem()} />;
+			modalBody = <ItemCreationSearch searchText={item.title} searchResults={this.state.searchResults}
+				nextStep={(i) => this.goToFormStep(i)} search={(searchText) => this.searchItem(searchText)} />;
 		} else {
 			modalBody = <ItemCreationForm item={item} platforms={this.state.platforms}
 				handleChange={(e) => this.handleChange(e)} />;

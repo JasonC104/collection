@@ -1,37 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FormElement } from '../elements';
 import './styles.scss';
 
 function ItemCreationSearch(props) {
-    const item = props.item;
 
-    let searchItems = null;
-    if (props.searchResults.length !== 0) {
-        searchItems = props.searchResults.map(result => {
-            return (
-                <div key={result.igdbId} className='search-item' onClick={() => props.nextStep(result)}>
-                    <img className='item-creation-img' src={result.image.thumb} alt={result.title} />
-                    <p className='search-item-title'>{result.title}</p>
-                </div>
-            );
-        });
-    }
+    const [searchText, setSearchText] = useState(props.searchText);
+    const onSearchChange = e => setSearchText(e.target.value);
+
+    let searchItems = props.searchResults.map(item =>
+        <div key={item.apiId} className='search-item' onClick={() => props.nextStep(item)}>
+            <img className='item-creation-img' src={item.image.thumb} alt={item.title} />
+            <p className='search-item-title'>{item.title}</p>
+        </div>
+    );
 
     const searchEvent = e => {
         e.preventDefault();
-        props.search();
+        props.search(searchText);
     }
 
     return (
         <div style={{ width: '100%' }}>
             <FormElement label='Title'>
-                <form className='field has-addons' onSubmit={e => searchEvent(e)}>
+                <form className='field has-addons' onSubmit={searchEvent}>
                     <div className='control' style={{ width: '70%' }}>
                         <input name='title' className='input' type='text' placeholder='Name'
-                            value={item.title} autoComplete="off" onChange={(e) => props.handleChange(e)} />
+                            value={searchText} autoComplete="off" onChange={onSearchChange} />
                     </div>
                     <div className='control'>
-                        <div className='button is-info' type='submit' onClick={e => searchEvent(e)}>Search</div>
+                        <div className='button is-info' type='submit' onClick={searchEvent}>Search</div>
                     </div>
                 </form>
             </FormElement>

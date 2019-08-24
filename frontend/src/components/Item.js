@@ -7,7 +7,7 @@ import './styles/item.scss';
 
 function Item(props) {
 	const item = props.item;
-	const modalElements = [
+	const modalElements = (props.schema) ? props.schema : [
 		{ key: 'platform', label: 'Platform', type: 'text' },
 		{ key: 'cost', label: 'Cost', type: 'money' },
 		{ key: 'type', label: 'Type', type: 'text' },
@@ -21,13 +21,11 @@ function Item(props) {
 	];
 
 	return (
-		<div>
-			<div className='item'>
-				<img className='lazyload item-pic' data-src={item.image.uniform} src='/apple.png' alt={item.title} title={item.title}
-					onClick={() => props.showItemModal(item, modalElements)} />
-				<div className='item-summary'>
-					{getBadges(item)}
-				</div>
+		<div className='item'>
+			<img className='lazyload item-pic' data-src={item.image.uniform} src='/apple.png' alt={item.title} title={item.title}
+				onClick={() => props.showItemModal(item, modalElements)} />
+			<div className='item-summary'>
+				{getBadges(item)}
 			</div>
 		</div>
 	);
@@ -37,7 +35,7 @@ function getBadges(item) {
 	const iconBadges = [];
 	if (item.platform === 'PS4') {
 		iconBadges.push(
-			<Icon key='ps4-icon' icon='fab fa-playstation' title='PS4'/>
+			<Icon key='ps4-icon' icon='fab fa-playstation' title='PS4' />
 		);
 	}
 	if (item.completed) {
@@ -47,12 +45,12 @@ function getBadges(item) {
 	}
 	if (item.cost === 0) {
 		iconBadges.push(
-			<Icon key='free-icon' className='has-text-danger' icon='fas fa-tag' title='Free Game!'/>
+			<Icon key='free-icon' className='has-text-danger' icon='fas fa-tag' title='Free Game!' />
 		);
 	}
 	if (item.gift) {
 		iconBadges.push(
-			<Icon key='gift-icon' className='has-text-danger' icon='fas fa-gift' title='Gift'/>
+			<Icon key='gift-icon' className='has-text-danger' icon='fas fa-gift' title='Gift' />
 		);
 	}
 	return iconBadges;

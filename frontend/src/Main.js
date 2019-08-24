@@ -4,13 +4,15 @@ import { withRouter } from "react-router";
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
-import { GamesApi } from './api';
+import { GamesApi, MoviesApi } from './api';
 import './styles/main.scss';
 
 function Main() {
     const [games, setGames] = useState([]);
+    const [movies, setMovies] = useState([]);
     useEffect(() => {
         GamesApi.getItems({}, response => setGames(response));
+        MoviesApi.getItems({}, response => setMovies(response));
     }, []);
 
     const NavBar = withRouter(NavBarComponent);
@@ -25,10 +27,12 @@ function Main() {
                     <Route path="/" exact render={props =>
                         <Dashboard {...props} games={games} />
                     } />
-                    <Route path="/games" render={props =>
+                    <Route path="/games" render={() =>
                         <GamesCollection games={games} setGames={setGames} />
                     } />
-                    <Route path="/movies" component={MoviesCollection} />
+                    <Route path="/movies" render={() =>
+                        <MoviesCollection movies={movies} setMovies={setMovies} />
+                    } />
                 </Switch>
             </BrowserRouter>
         </div>

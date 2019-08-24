@@ -3,6 +3,8 @@ import Rating from "react-rating";
 import { FormElement, Icon } from '../elements';
 
 function ItemModalSummary(props) {
+    if (!props.elements || !props.item) return null;
+
     const item = props.item;
 
     const formComponents = props.elements.map(element => {
