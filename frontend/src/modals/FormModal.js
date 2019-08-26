@@ -27,13 +27,3 @@ export default function FormModal(props) {
         />
     );
 }
-
-function validateItem(item) {
-    if (item.title === '') return false;
-    if (item.platform === '') return false;
-    if (item.type === '') return false;
-    if (item.cost === '' || isNaN(item.cost)) return false;
-    if (item.purchaseDate === null) return false;
-    if (item.igdbId === 0) return false;
-    return true;
-}

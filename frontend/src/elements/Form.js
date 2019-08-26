@@ -44,6 +44,9 @@ function getFormElement(item, schema, onChange) {
         case 'checkbox':
             body = <FormCheckbox {...props} />;
             break;
+        case 'radio':
+            body = <FormRadioButtons {...props} />;
+            break;
         case 'list':
             body = <FormList {...props} />;
             break;
@@ -65,7 +68,7 @@ function FormText(props) {
     if (props.schema.readonly) {
         return <p>{props.value}</p>;
     } else {
-        return <input name={props.schema.key} className='input' type='text' placeholder=''
+        return <input name={props.schema.key} className='input' type='text' placeholder='' autoComplete='off'
             value={props.value} onChange={props.onChange} />;
     }
 }
@@ -82,7 +85,7 @@ function FormMoney(props) {
         return (
             <div className='control has-icons-left' style={{ width: '100px' }}>
                 <input name={props.schema.key} className='input' maxLength='6' type='text' placeholder='0'
-                    value={props.value} onChange={props.onChange} />
+                    autoComplete='off' value={props.value} onChange={props.onChange} />
                 <Icon className='is-left' icon='fas fa-dollar-sign' />
             </div>
         );
@@ -91,11 +94,29 @@ function FormMoney(props) {
 
 // TODO Test if this works with the readonly prop
 function FormCheckbox(props) {
+    const onChange = (e) => props.onChange(
+        { target: { name: props.schema.key, value: (e.target.value === 'on') } }
+    );
     return (
         <label className="checkbox">
-            <input name={props.schema.key} type="checkbox" checked={props.value} readonly={props.schema.readonly}
-                onChange={props.onChange} />
+            <input name={props.schema.key} type="checkbox" checked={props.value}
+                readOnly={props.schema.readonly} onChange={onChange} />
         </label>
+    );
+}
+
+function FormRadioButtons(props) {
+    const radioButtons = props.schema.options.map(o =>
+        <label key={o} className="radio">
+            <input name={props.schema.key} type="radio" value={o}
+                readOnly={props.schema.readonly} onChange={props.onChange} />
+            {o}
+        </label>
+    );
+    return (
+        <div className="control">
+            {radioButtons}
+        </div>
     );
 }
 
