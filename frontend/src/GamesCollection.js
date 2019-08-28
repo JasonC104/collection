@@ -9,6 +9,8 @@ import './styles/collection.scss';
 export default function GamesCollection(props) {
 	const [modalData, setModalData] = useState(null);
 
+	const getGames = () => props.getGames();
+
 	const gameComponents = props.games.map(game =>
 		<Item key={game.title} item={game} onClick={() => setModalData({ type: 'ItemModal', item: game })} />
 	);
@@ -22,7 +24,7 @@ export default function GamesCollection(props) {
 			<div className='new-item-btn button is-link is-large' onClick={() => setModalData({ type: 'SearchModal', item: {} })}>
 				<Icon icon='fas fa-plus fa-lg' />
 			</div>
-			{getModal(modalData, setModalData, props.getGames)}
+			{getModal(modalData, setModalData, getGames)}
 		</div>
 	);
 }
@@ -54,25 +56,26 @@ function getFormSchema(platformOptions) {
 
 function getModal(modalData, setModalData, getGames) {
 	const createItem = (item) => {
-		GamesApi.createItem(item, getGames);
+		GamesApi.createItem(item).then(getGames);
 		setModalData(null);
 	}
 	const updateGame = (e) => {
 		const update = { id: modalData.item.id, [e.target.name]: e.target.value };
-		GamesApi.updateItem(update, getGames)
-		// .then(res => {
-		// 	const updatedItem = res.find(m => m.id === modalData.item.id);
-		// 	setModalData({ ...modalData, item: updatedItem });
-		// });
+		GamesApi.updateItem(update)
+			.then(getGames)
+			.then(games => {
+				const updatedItem = games.find(m => m.id === modalData.item.id);
+				setModalData({ ...modalData, item: updatedItem });
+			});
 	}
 	const deleteGame = () => {
-		GamesApi.deleteItem(modalData.item.id, getGames);
+		GamesApi.deleteItem(modalData.item.id).then(getGames);
 		setModalData(null);
 	}
 	const searchGame = (searchText) =>
-		GamesApi.searchItem(searchText, searchResults => setModalData({ ...modalData, searchResults }));
+		GamesApi.searchItem(searchText).then(searchResults => setModalData({ ...modalData, searchResults }));
 	const showSearchModal = (item) => setModalData({ ...modalData, type: 'SearchModal', item });
-	const showFormModal = (item) => setModalData({ ...modalData, type: 'FormModal', item });
+	const showFormModal = (item) => setModalData({ ...modalData, type: 'FormModal', item: { ...item, platform: item.platforms[0] } });
 
 	switch (modalData && modalData.type) {
 		case 'ItemModal':

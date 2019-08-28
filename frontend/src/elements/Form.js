@@ -69,7 +69,7 @@ function FormText(props) {
         return <p>{props.value}</p>;
     } else {
         return <input name={props.schema.key} className='input' type='text' placeholder='' autoComplete='off'
-            value={props.value} onChange={props.onChange} />;
+            value={props.value || ''} onChange={props.onChange} />;
     }
 }
 
@@ -85,7 +85,7 @@ function FormMoney(props) {
         return (
             <div className='control has-icons-left' style={{ width: '100px' }}>
                 <input name={props.schema.key} className='input' maxLength='6' type='text' placeholder='0'
-                    autoComplete='off' value={props.value} onChange={props.onChange} />
+                    autoComplete='off' value={props.value || ''} onChange={props.onChange} />
                 <Icon className='is-left' icon='fas fa-dollar-sign' />
             </div>
         );

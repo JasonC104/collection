@@ -46,7 +46,7 @@ describe('Games tests', () => {
                 const data = res.body;
                 expect(data).to.have.length.lengthOf(2);
                 data.forEach(element => {
-                    expect(element).to.have.property('igdbId').to.be.a('number');
+                    expect(element).to.have.property('apiId').to.be.a('number');
                     expect(element).to.have.property('title').to.be.a('string').that.is.not.empty;
                     expect(element).to.have.property('platforms').to.be.an('array').that.is.not.empty;
                     expect(element).to.have.property('popularity').to.be.a('number');
@@ -63,7 +63,7 @@ describe('Games tests', () => {
 
     [
         { function: 'getAnticipated', endpoint: '/api/games/anticipated' },
-        { function: 'getHighlyRated', endpoint: '/api/games/highly-rated' },
+        { function: 'getPopular', endpoint: '/api/games/popular' },
         { function: 'getRecentlyReleased', endpoint: '/api/games/recently-released' }
     ].forEach(test => {
         it(test.function, (done) => {
@@ -77,7 +77,7 @@ describe('Games tests', () => {
                     expect(data).to.have.length.lengthOf(1);
 
                     const element = data[0];
-                    expect(element).to.have.property('igdbId').to.be.a('number');
+                    expect(element).to.have.property('apiId').to.be.a('number');
                     expect(element).to.have.property('title').to.be.a('string').that.is.not.empty;
                     expect(element).to.have.property('summary').to.be.a('string').that.is.not.empty;
                     expect(element).to.have.property('platforms').to.be.an('array').that.is.not.empty;
@@ -100,7 +100,7 @@ describe('Games tests', () => {
             .post('/games')
             .reply(200, apiMock.getGamesInfo());
         const postData = {
-            "title": "Rune Factory 4 Special", "platform": "Switch", "cost": 60, "type": "Physical", "rating": 4, "igdbId": 115278
+            "title": "Rune Factory 4 Special", "platform": "Switch", "cost": 60, "type": "Physical", "rating": 4, "apiId": 115278
         };
         let id;
 
@@ -119,7 +119,7 @@ describe('Games tests', () => {
 
                 const element = data[0];
                 id = element.id;
-                expect(element).to.have.property('igdbId').to.equal(postData.igdbId);
+                expect(element).to.have.property('apiId').to.equal(postData.apiId);
                 expect(element).to.have.property('title').to.equal(postData.title);
                 expect(element).to.have.property('platform').to.equal(postData.platform);
                 expect(element).to.have.property('cost').to.equal(postData.cost);
@@ -152,7 +152,7 @@ describe('Games tests', () => {
                 expect(data).to.have.lengthOf(1);
 
                 const element = data[0];
-                expect(element).to.have.property('igdbId').to.equal(postData.igdbId);
+                expect(element).to.have.property('apiId').to.equal(postData.apiId);
                 expect(element).to.have.property('title').to.equal(postData.title);
                 expect(element).to.have.property('platform').to.equal(postData.platform);
                 expect(element).to.have.property('cost').to.equal(postData.cost);

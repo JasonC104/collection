@@ -11,7 +11,7 @@ const GameSchema = new mongoose.Schema(
         completed: { type: Boolean, default: false },
         gift: { type: Boolean, default: false },
         links: { type: [String], default: [] },
-        igdbId: { type: Number, required: true }
+        apiId: { type: Number, required: true }
     },
     {
         timestamps: true

@@ -14,11 +14,17 @@ function Main() {
     const getGames = (filters) => {
         if (filters) setGamesFilters(filters);
         else filters = gamesFilters;
-        return GamesApi.getItems(filters, response => setGames(response));
+        return GamesApi.getItems(filters).then(items => { setGames(items); return items; });
+    }
+    const [moviesFilters, setMoviesFilters] = useState({});
+    const getMovies = (filters) => {
+        if (filters) setMoviesFilters(filters);
+        else filters = moviesFilters;
+        return MoviesApi.getItems(filters).then(items => { setMovies(items); return items; });
     }
     useEffect(() => {
-        GamesApi.getItems({}, response => setGames(response));
-        MoviesApi.getItems({}, response => setMovies(response));
+        GamesApi.getItems({}).then(setGames);
+        MoviesApi.getItems({}).then(setMovies);
     }, []);
 
     const NavBar = withRouter(NavBarComponent);
@@ -37,7 +43,7 @@ function Main() {
                         <GamesCollection games={games} getGames={getGames} />
                     } />
                     <Route path="/movies" render={() =>
-                        <MoviesCollection movies={movies} setMovies={setMovies} />
+                        <MoviesCollection movies={movies} getMovies={getMovies} />
                     } />
                 </Switch>
             </BrowserRouter>

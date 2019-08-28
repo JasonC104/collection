@@ -5,17 +5,17 @@ const convertDateToString = require('../utils').convertDateToString;
 const handleError = require('../utils').handleError;
 
 // populate igdbCache on startup. 
-let igdbCache = {}; // { [igdbId]: dataObject }
+let igdbCache = {}; // { [apiId]: dataObject }
 Game.find({})
-    .select('igdbId')
+    .select('apiId')
     .exec((err, data) => {
         if (err) { console.log(err); return; }
 
         igdbCache = {};
         while (data.length > 0) {
-            const igdbIds = data.splice(0, 10).map(e => e.igdbId).join(',');
-            Api.getItem(igdbIds)
-                .then(data => data.forEach(e => igdbCache[e.igdbId] = e))
+            const apiIds = data.splice(0, 10).map(e => e.apiId).join(',');
+            Api.getItem(apiIds)
+                .then(data => data.forEach(e => igdbCache[e.apiId] = e))
                 .catch(err => console.log(err));
         }
     });
@@ -32,7 +32,7 @@ function parseDatabaseGame(e) {
         completed: e.completed,
         gift: e.gift,
         links: e.links,
-        igdbId: e.igdbId,
+        apiId: e.apiId,
     };
 }
 
@@ -67,7 +67,7 @@ function getCollection(req, res) {
 
             const result = data.map(e => {
                 // merge the igdb information with the record in the db 
-                const game = { ...igdbCache[e.igdbId], ...parseDatabaseGame(e) };
+                const game = { ...igdbCache[e.apiId], ...parseDatabaseGame(e) };
                 return game;
             });
             return res.json(result);
@@ -78,7 +78,7 @@ function addToCollection(req, res) {
     const item = req.body;
 
     // add igdb information on the new game to the cache
-    Api.getItem(item.igdbId)
+    Api.getItem(item.apiId)
         .then(data => {
             if (data.length === 1) return data[0];
 
@@ -96,14 +96,14 @@ function addToCollection(req, res) {
                 gift: item.gift,
                 rating: item.rating,
                 links: item.links,
-                igdbId: item.igdbId
+                apiId: item.apiId
             });
 
             game.save((err, doc) => {
                 if (err) return handleError(res, err)
 
                 console.log(doc);
-                igdbCache[data.igdbId] = data;
+                igdbCache[data.apiId] = data;
                 return res.json({ success: true });
             });
         }).catch(err => handleError(res, err));

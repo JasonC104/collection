@@ -10,50 +10,46 @@ export default class ItemApi {
      * Performs a GET request at the url
      * @param {String} url 
      * @param {Object} params 
-     * @param {*} callback 
      */
-    get(url, params, callback) {
+    get(url, params) {
         return axios.get(url, { params })
-            .then(response => callback(response.data))
+            .then(response => response.data)
             .catch(err => console.log(err));
     }
 
-    getItems(requirements, callback) {
-        return this.get(`${this.baseUrl}`, requirements, callback);
+    getItems(requirements) {
+        return this.get(`${this.baseUrl}`, requirements);
     };
 
     createItem(newItem, callback) {
         return axios.post(`${this.baseUrl}`, newItem)
-            .then(() => callback())
             .catch(err => console.log(err));
     }
 
     updateItem(update, callback) {
         return axios.put(`${this.baseUrl}`, update)
-            .then(() => callback())
             .catch(err => console.log(err));
     }
 
     deleteItem(id, callback) {
         return axios.delete(`${this.baseUrl}/${id}`)
-            .then(() => callback())
             .catch(err => console.log(err));
     }
 
-    searchItem(title, callback) {
-        return this.get(`${this.baseUrl}/search/${title}`, {}, callback);
+    searchItem(title) {
+        return this.get(`${this.baseUrl}/search/${title}`, {});
     }
 
-    anticipatedGames(callback) {
-        return this.get(`${this.baseUrl}/anticipated`, {}, callback);
+    anticipatedGames() {
+        return this.get(`${this.baseUrl}/anticipated`, {});
     }
 
-    popular(callback) {
-        return this.get(`${this.baseUrl}/popular`, {}, callback);
+    popular() {
+        return this.get(`${this.baseUrl}/popular`, {});
     }
 
-    recentlyReleased(callback) {
-        return this.get(`${this.baseUrl}/recently-released`, {}, callback);
+    recentlyReleased() {
+        return this.get(`${this.baseUrl}/recently-released`, {});
     }
 
 }

@@ -9,7 +9,7 @@ function getImageUrl(size, imageId) {
 }
 
 function parse(e) {
-    const data = { igdbId: e.id };
+    const data = { apiId: e.id };
     data.title = e.name || '';
     data.summary = e.summary || '';
     data.releaseDate = (e.first_release_date) ? convertDateToString(new Date(e.first_release_date * 1000)) : '';
@@ -35,10 +35,10 @@ function apiCall(endpoint, body) {
         .then(response => response.data.map(e => parse(e)));
 }
 
-function getItem(igdbIds) {
+function getItem(apiIds) {
     const body = `
         fields cover.image_id,summary,genres.name,themes.name;
-        where id = (${igdbIds});
+        where id = (${apiIds});
     `;
     return apiCall('/games', body);
 }

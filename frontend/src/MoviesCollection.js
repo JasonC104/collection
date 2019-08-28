@@ -10,6 +10,8 @@ export default function MoviesCollection(props) {
 
 	const [modalData, setModalData] = useState(null);
 
+	const getMovies = () => props.getMovies();
+
 	const movieComponents = props.movies.map(movie =>
 		<Item key={movie.title} item={movie} onClick={() => setModalData({ type: 'ItemModal', item: movie })} />
 	);
@@ -23,7 +25,7 @@ export default function MoviesCollection(props) {
 			<div className='new-item-btn button is-link is-large' onClick={() => setModalData({ type: 'SearchModal', item: {} })}>
 				<Icon icon='fas fa-plus fa-lg' />
 			</div>
-			{getModal(modalData, setModalData, props.setMovies)}
+			{getModal(modalData, setModalData, getMovies)}
 		</div>
 	);
 }
@@ -40,26 +42,26 @@ const movieFormSchema = [
 ];
 const stepData = [[1, 'Select the movie'], [2, 'Fill the form']];
 
-function getModal(modalData, setModalData, setMovies) {
-	const getMovies = () => MoviesApi.getItems({}, response => setMovies(response));
+function getModal(modalData, setModalData, getMovies) {
 	const createItem = (item) => {
-		MoviesApi.createItem(item, getMovies);
+		MoviesApi.createItem(item).then(getMovies);
 		setModalData(null);
 	}
 	const updateMovie = (e) => {
 		const update = { id: modalData.item.id, [e.target.name]: e.target.value };
-		MoviesApi.updateItem(update, getMovies)
-		// .then(res => {
-		// 	const updatedItem = res.find(m => m.id === modalData.item.id);
-		// 	setModalData({ ...modalData, item: updatedItem });
-		// });
+		MoviesApi.updateItem(update)
+			.then(getMovies)
+			.then(movies => {
+				const updatedItem = movies.find(m => m.id === modalData.item.id);
+				setModalData({ ...modalData, item: updatedItem });
+			});
 	}
 	const deleteMovie = () => {
-		MoviesApi.deleteItem(modalData.item.id, getMovies);
+		MoviesApi.deleteItem(modalData.item.id).then(getMovies);
 		setModalData(null);
 	}
 	const searchMovie = (searchText) =>
-		MoviesApi.searchItem(searchText, searchResults => setModalData({ ...modalData, searchResults }));
+		MoviesApi.searchItem(searchText).then(searchResults => setModalData({ ...modalData, searchResults }));
 	const showSearchModal = (item) => setModalData({ ...modalData, type: 'SearchModal', item });
 	const showFormModal = (item) => setModalData({ ...modalData, type: 'FormModal', item });
 
