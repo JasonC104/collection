@@ -51,6 +51,9 @@ function getCollection(req, res) {
     if (query.platform && Array.isArray(query.platform)) {
         requirements.platform = { $in: query.platform };
     }
+    if (query.ids && Array.isArray(query.ids)) {
+        requirements._id = { $in: query.ids };
+    }
 
     // sort
     const order = (query.order === 'desc') ? -1 : 1;

@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const GamesController = require('./controllers/gamesController');
 const MoviesController = require('./controllers/moviesController');
+const WidgetsController = require('./controllers/widgetsController');
 
 const app = express();
 const router = express.Router();
@@ -39,5 +40,8 @@ router.get('/movies/search/:title', MoviesController.search);
 router.get('/movies/anticipated', MoviesController.getAnticipated);
 router.get('/movies/popular', MoviesController.getPopular);
 router.get('/movies/recently-released', MoviesController.getRecentlyReleased);
+
+/////////////// Widgets ///////////////
+router.post('/widgets', WidgetsController.getWidgetsData);
 
 module.exports = app;

@@ -90,7 +90,7 @@ function getPopular(limit = 10) {
     // However, games released in another region first and then released in NA/World in this month, will not appear
     const body = `
         fields first_release_date, name, summary, cover.image_id, genres.name, themes.name, platforms.abbreviation, platforms.name;
-        limit ${10};
+        limit ${limit};
         where first_release_date > ${oneMonthAgo} & first_release_date < ${today} & 
         release_dates.date > ${oneMonthAgo} & release_dates.date < ${today} & release_dates.region = (2,8);
         sort popularity desc;
