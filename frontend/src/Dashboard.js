@@ -3,7 +3,7 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import { Storage, WidgetsApi } from './api';
 import { ChartCreator, WidgetCreator } from './helpers';
 import { Icon } from './elements';
-import { ItemModal, WidgetCreationModal } from './modals';
+import { WidgetItemModal, WidgetCreationModal } from './modals';
 import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(RGL);
@@ -186,9 +186,10 @@ export default class Dashboard extends Component {
 
 		let modal = null;
 		if (this.state.modalData) {
-			if (this.state.modalData.type === 'ItemModal')
-				modal = <ItemModal item={this.state.modalData.item} schema={getItemModalSchema(this.state.modalData.dataSet)} onUpdate={null} onDelete={null} />;
-			else if (this.state.modalData.type === 'WidgetCreationModal')
+			const modalData = this.state.modalData;
+			if (modalData.type === 'ItemModal')
+				modal = <WidgetItemModal item={modalData.item} schema={getItemModalSchema(modalData.dataSet)} />;
+			else if (modalData.type === 'WidgetCreationModal')
 				modal = <WidgetCreationModal calculateWidgetData={this.calculateWidgetData.bind(this)} addWidget={this.addWidget.bind(this)} />;
 		}
 
@@ -233,14 +234,4 @@ function getItemModalSchema(dataSet) {
 		case 'movies': return movieSchema;
 		default: return [];
 	}
-}
-
-function getItemModalFooter() {
-	return (
-		<div>
-			<button className='button is-success'>
-				<p>Add to Wishlist</p>
-			</button>
-		</div>
-	);
 }

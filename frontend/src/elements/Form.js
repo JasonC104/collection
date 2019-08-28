@@ -94,9 +94,7 @@ function FormMoney(props) {
 
 // TODO Test if this works with the readonly prop
 function FormCheckbox(props) {
-    const onChange = (e) => props.onChange(
-        { target: { name: props.schema.key, value: (e.target.value === 'on') } }
-    );
+    const onChange = () => props.onChange({ target: { name: props.schema.key, value: !props.value } });
     return (
         <label className="checkbox">
             <input name={props.schema.key} type="checkbox" checked={props.value}

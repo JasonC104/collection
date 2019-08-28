@@ -14,6 +14,16 @@ function getChartData(model, schema) {
     }
 }
 
+function getLabel(attribute, label) {
+    if (label === true) {
+        return attribute;
+    } else if (label === false) {
+        return `Not ${attribute}`;
+    } else {
+        return label;
+    }
+}
+
 function getPieChartData(model, schema) {
     if (!schema['Attribute']) return null;
 
@@ -33,6 +43,11 @@ function getPieChartData(model, schema) {
             })
             .exec((err, data) => {
                 if (err) { console.log(err); return reject(null); }
+
+                data.map(d => {
+                    d.label = getLabel(schema['Attribute'], d.label);
+                    return d;
+                });
                 return resolve({ data });
             });
     });
