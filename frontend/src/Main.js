@@ -10,6 +10,12 @@ import './styles/main.scss';
 function Main() {
     const [games, setGames] = useState([]);
     const [movies, setMovies] = useState([]);
+    const [gamesFilters, setGamesFilters] = useState({});
+    const getGames = (filters) => {
+        if (filters) setGamesFilters(filters);
+        else filters = gamesFilters;
+        return GamesApi.getItems(filters, response => setGames(response));
+    }
     useEffect(() => {
         GamesApi.getItems({}, response => setGames(response));
         MoviesApi.getItems({}, response => setMovies(response));
@@ -25,10 +31,10 @@ function Main() {
                 </div>
                 <Switch>
                     <Route path="/" exact render={props =>
-                        <Dashboard {...props} games={games} />
+                        <Dashboard {...props} getGames={getGames} />
                     } />
                     <Route path="/games" render={() =>
-                        <GamesCollection games={games} setGames={setGames} />
+                        <GamesCollection games={games} getGames={getGames} />
                     } />
                     <Route path="/movies" render={() =>
                         <MoviesCollection movies={movies} setMovies={setMovies} />

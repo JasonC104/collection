@@ -2,18 +2,18 @@ import React from 'react';
 import { FormElement } from '../elements';
 
 const fieldLabels = {
-    'chart': 'Chart',
-    'news': 'News',
-    'other': 'Other',
-    'games': 'Games',
-    'movies': 'Movies',
+    // 'chart': 'Chart',
+    // 'news': 'News',
+    // 'other': 'Other',
+    // 'games': 'Games',
+    // 'movies': 'Movies',
     'BarWidget': 'Bar',
     'PieWidget': 'Pie',
-    'platform': 'Platform',
-    'completed': 'Completed',
-    'gift': 'Gift',
-    'type': 'Type',
-    'cost': 'Cost',
+    // 'platform': 'Platform',
+    // 'completed': 'Completed',
+    // 'gift': 'Gift',
+    // 'type': 'Type',
+    // 'cost': 'Cost',
     'purchaseDate': 'Purchase Date',
 };
 
@@ -45,20 +45,30 @@ const formFields = [{
     }],
     news: [],
     other: [{
-        options: ['Anticipated Games', 'Popular Games', 'Recently Released Games'],
+        options: ['games', 'movies'],
+        label: 'Data Set',
+    }, {
+        options: ['Anticipated', 'Popular', 'Recently Released'],
         label: 'Widget'
     }]
 }];
 
 function getLabel(field) {
-    return fieldLabels[field];
+    if (fieldLabels[field]) {
+        return fieldLabels[field];
+    } else if (typeof field === 'string') {
+        // Convert the first letter to upper case and return the field
+        return field.charAt(0).toUpperCase() + field.slice(1);
+    } else {
+        return field;
+    }
 }
 
 /* TODO
     colours template
 */
 
-class WidgetCreationForm extends React.Component {
+export default class WidgetCreationForm extends React.Component {
 
     generateFormElements(fields) {
         const widgetInfo = this.props.widgetInfo;
@@ -113,5 +123,3 @@ class WidgetCreationForm extends React.Component {
         );
     }
 }
-
-export default WidgetCreationForm;

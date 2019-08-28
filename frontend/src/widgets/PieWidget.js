@@ -25,7 +25,7 @@ function PieWidget(props) {
         <PieChart width={props.width} height={props.height}>
             <Tooltip />
             <Pie data={props.data[0]} dataKey="value" nameKey="label" outerRadius={pieSize}
-                isAnimationActive={false} labelLine={false} onClick={props.onClick}>
+                isAnimationActive={false} labelLine={false} onClick={data => props.onClick(data.items)}>
                 <LabelList dataKey="label" position="outside" offset={10} />
                 {props.data[0].map((entry, index) =>
                     <Cell key={`cell-${index}`} fill={COLORS[index]} stroke={COLORS[index]} />
