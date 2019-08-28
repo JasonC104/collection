@@ -1,29 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Actions } from '../actions';
 import { Icon } from '../elements';
 import 'lazysizes';
 import './styles/item.scss';
 
-function Item(props) {
+export default function Item(props) {
 	const item = props.item;
-	const modalElements = (props.schema) ? props.schema : [
-		{ key: 'platform', label: 'Platform', type: 'text' },
-		{ key: 'cost', label: 'Cost', type: 'money' },
-		{ key: 'type', label: 'Type', type: 'text' },
-		{ key: 'purchaseDate', label: 'Purchase Date', type: 'text' },
-		{ key: 'rating', label: 'Rating', type: 'rating', readonly: false, onChange: props.updateItem },
-		{ key: 'completed', label: 'Completed', type: 'checkbox', readonly: false, onChange: props.updateItem },
-		{ key: 'gift', label: 'Gift', type: 'checkbox', readonly: false, onChange: props.updateItem },
-		{ key: 'summary', label: 'Description', type: 'text' },
-		{ key: 'genres', label: 'Genres', type: 'list' },
-		{ key: 'themes', label: 'Themes', type: 'list' }
-	];
-
 	return (
 		<div className='item'>
 			<img className='lazyload item-pic' data-src={item.image.uniform} src='/apple.png' alt={item.title} title={item.title}
-				onClick={() => props.showItemModal(item, modalElements)} />
+				onClick={props.onClick} />
 			<div className='item-summary'>
 				{getBadges(item)}
 			</div>
@@ -55,11 +40,3 @@ function getBadges(item) {
 	}
 	return iconBadges;
 }
-
-function mapDispatchToProps(dispatch) {
-	return {
-		showItemModal: (item, elements) => dispatch(Actions.showItemModal(item, elements)),
-	};
-}
-
-export default connect(null, mapDispatchToProps)(Item);

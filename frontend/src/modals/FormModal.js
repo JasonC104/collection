@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Form } from '../elements';
-import Modal from './Modal2';
-import { Icon } from '../elements';
+import { Modal } from '.';
+import { Form, Icon } from '../elements';
 import './styles.scss';
 
 export default function FormModal(props) {

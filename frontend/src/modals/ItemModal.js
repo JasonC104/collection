@@ -1,31 +1,22 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Actions } from '../actions';
 import { Modal } from '.';
-import ItemModalSummary from './ItemModalSummary';
+import { Form, Icon, TwoClickButton } from '../elements';
 import './styles.scss';
 
-function ItemModal(props) {
+/**
+ * @param {{item: any, schema: [any], onDelete: function, header: any}} props 
+ */
+export default function ItemModal(props) {
     return (
         <Modal
-            active={props.itemModal.active}
-            closeModal={props.closeModal}
-            body={<ItemModalSummary item={props.itemModal.item} elements={props.itemModal.elements} />}
-            footer={props.footer}
+            title=''
+            header={props.header}
+            body={<Form item={props.item} schema={props.schema} onChange={props.onUpdate} />}
+            footer={
+                <TwoClickButton className='is-danger' onClick={props.onDelete}>
+                    <Icon icon='fas fa-trash' />
+                </TwoClickButton>
+            }
         />
     );
 }
-
-function mapStateToProps(state) {
-    return {
-        itemModal: state.modals.itemModal
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        closeModal: () => dispatch(Actions.closeItemModal()),
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemModal);

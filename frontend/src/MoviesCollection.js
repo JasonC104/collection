@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import Item from './components/Item2';
-// import { ItemCreationModal, ItemModal } from './modals';
-import ItemModal from './modals/ItemModal2';
-import SearchModal from './modals/SearchModal';
-import FormModal from './modals/FormModal';
+import Item from './components/Item';
+import { ItemModal, SearchModal, FormModal } from './modals';
 import Toolbar from './components/toolbar/Toolbar'
 import { MoviesApi } from './api';
 import { Icon, Steps } from './elements';
@@ -52,10 +49,10 @@ function getModal(modalData, setModalData, setMovies) {
 	const updateMovie = (e) => {
 		const update = { id: modalData.item.id, [e.target.name]: e.target.value };
 		MoviesApi.updateItem(update, getMovies)
-			// .then(res => {
-			// 	const updatedItem = res.find(m => m.id === modalData.item.id);
-			// 	setModalData({ ...modalData, item: updatedItem });
-			// });
+		// .then(res => {
+		// 	const updatedItem = res.find(m => m.id === modalData.item.id);
+		// 	setModalData({ ...modalData, item: updatedItem });
+		// });
 	}
 	const deleteMovie = () => {
 		MoviesApi.deleteItem(modalData.item.id, getMovies);

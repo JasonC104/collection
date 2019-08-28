@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles2.scss';
 
 /**
  * Modal component
- * @param {{active: boolean, title: string, header: JSX, body: JSX, footer: JSX}} props 
+ * @param {{title: string, header: JSX.Element, body: JSX.Element, footer: JSX.Element}} props 
  */
 export default function Modal(props) {
 
-    if (!props.active) return null;
+    // The active state decides if modal is shown or not. 
+    // When the modal is inactive, it will be active again when the body changes
+    const [active, setActive] = useState(true);
+    const closeModal = () => setActive(false);
+    useEffect(() => {
+        setActive(true);
+    }, [props.body]);
+
+    if (!active) return null;
 
     const title = (props.title) ? props.title : '';
     return (
         <div className='modal is-active'>
-            <div className='modal-background' onClick={props.closeModal} />
+            <div className='modal-background' onClick={closeModal} />
             <div className='modal-card'>
                 <header className='modal-card-head'>
                     <p className='modal-card-title title is-marginless'>{title}</p>
@@ -22,7 +30,7 @@ export default function Modal(props) {
                         </div>
                     </div>
                     <div className='is-flex-grow-1'>
-                        <button className='delete is-pulled-right' onClick={props.closeModal} />
+                        <button className='delete is-pulled-right' onClick={closeModal} />
                     </div>
                 </header>
                 <section className='modal-card-body is-flex'>

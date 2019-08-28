@@ -1,6 +1,6 @@
 import React from 'react';
+import { Modal } from '.';
 import ItemCreationSearch from './ItemCreationSearch';
-import Modal from './Modal2';
 import './styles.scss';
 
 export default function SearchModal(props) {
