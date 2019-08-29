@@ -8,7 +8,7 @@ function BarWidget(props) {
     props.dataKey.forEach((key, index) => {
         bar.push(
             <Bar key={key} dataKey={key} stackId='a' fill={props.colours[index]}
-                onClick={props.onClick} isAnimationActive={false} />
+                onClick={data => props.onClick(data.items[key])} isAnimationActive={false} />
         );
     });
 

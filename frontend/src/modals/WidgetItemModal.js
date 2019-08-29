@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from '.';
-import { Form, Icon, TwoClickButton } from '../elements';
+import { Form } from '../elements';
 import './styles.scss';
 
 /**
@@ -11,11 +11,11 @@ export default function ItemModal(props) {
         <Modal
             title=''
             header={props.header}
-            body={<Form item={props.item} schema={props.schema} onChange={props.onUpdate} />}
+            body={<Form item={props.item} schema={props.schema} onChange={null} />}
             footer={
-                <TwoClickButton className='is-danger' onClick={props.onDelete}>
-                    <Icon icon='fas fa-trash' />
-                </TwoClickButton>
+                <button className='button is-success'>
+                    <p>Add to Wishlist</p>
+                </button>
             }
         />
     );

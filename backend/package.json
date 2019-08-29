@@ -4,8 +4,11 @@
   "description": "backend",
   "main": "index.js",
   "scripts": {
-    "start": "SET NODE_ENV=local & node src\\app.js",
-    "prod": "SET NODE_ENV=production & node src\\app.js"
+    "start": "SET NODE_ENV=local & node ./server.js",
+    "debug": "SET NODE_ENV=local & node --inspect ./server.js",
+    "prod": "SET NODE_ENV=production & node ./server.js",
+    "debug-prod": "SET NODE_ENV=production & node --inspect ./server.js",
+    "test": "SET NODE_ENV=test & mocha ./tests --recursive --exit"
   },
   "author": "Jason C",
   "license": "ISC",
@@ -14,9 +17,17 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.8",
+    "date-fns": "^2.0.1",
     "dotenv": "^8.0.0",
     "express": "^4.16.4",
     "json2csv": "^4.5.1",
     "mongoose": "^5.5.8"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "mongodb-memory-server-core": "^5.1.10",
+    "nock": "^10.0.6",
+    "supertest": "^4.0.2"
   }
 }

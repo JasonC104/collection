@@ -1,109 +1,79 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useState } from 'react';
 import WidgetCreationForm from './WidgetCreationForm';
-import { ChartCreator, WidgetCreator } from '../helpers';
+import { Modal } from '.';
 import { FormElement } from '../elements';
 import './styles.scss';
 
-class WidgetCreationModal extends React.Component {
-    constructor(props) {
-        super(props);
-        this.initialState = { widgetInfo: {}, showWidget: false, widget: {} }
-        this.state = { ...this.initialState };
-    }
-
-    handleChange(e) {
-        const { name, value } = e.target;
-        const widgetInfo = {
-            ...this.state.widgetInfo,
-            [name]: value
-        };
-        this.setState({ widgetInfo });
-    }
-
-    addWidgetToDashboard() {
-        this.props.addWidget(this.state.widgetInfo, this.state.widget);
-        this.props.closeModal();
-        this.setState({ ...this.initialState });
-    }
-
-    previewWidget(e) {
+export default function WidgetCreationModal(props) {
+    const [widget, setWidget] = useState(null);
+    const [widgetInfo, setWidgetInfo] = useState({});
+    const onChange = (e) => setWidgetInfo({ ...widgetInfo, [e.target.name]: e.target.value });
+    const previewWidget = (e) => {
         e.preventDefault();
-
-        const widgetInfo = this.state.widgetInfo;
-        switch (widgetInfo['Widget Type']) {
-            case 'chart':
-                const dataset = this.props[widgetInfo['Data Set']];
-                const widget = ChartCreator.createWidgetData(dataset, widgetInfo, null);
-                this.setState({
-                    showWidget: true,
-                    widget,
-                    widgetInfo: { ...widgetInfo, Title: widgetInfo['Chart Type'] }
-                });
-                break;
-            case 'news':
-                break;
-            case 'other':
-                WidgetCreator.createItemList(widgetInfo, () => { }).then(widget => {
-                    this.setState({
-                        showWidget: true,
-                        widget,
-                        widgetInfo: { ...widgetInfo, Title: widgetInfo.Widget }
-                    });
-                });
-                break;
-            default:
-        }
-        return null;
+        props.calculateWidgetData([widgetInfo]).then(widgets => {
+            if (widgets.length === 1 && widgets[0]) {
+                const widget = widgets[0];
+                widget.props.onClick = null;
+                setWidget(widget);
+                setWidgetInfo({ ...widgetInfo, 'Title': getDefaultTitle(widgetInfo) });
+            }
+        });
     }
+    const addWidget = () => props.addWidget(widgetInfo, widget);
 
-    render() {
-
-        const props = this.props;
-        const active = props.active ? 'is-active' : '';
-        let widget = <div></div>;
-        let enableAddWidgetButton = false;
-        if (this.state.showWidget) {
-            widget = (
-                <div className='widget-preview'>
-                    <FormElement label='Title'>
-                        <input name='Title' className='input' type='text' autoComplete="off"
-                            value={this.state.widgetInfo['Title']} onChange={e => this.handleChange(e)} />
-                    </FormElement>
-                    {React.createElement(this.state.widget.type, this.state.widget.props)}
-                </div>
-            );
-            enableAddWidgetButton = true;
-        }
-
-        return (
-            <div className={'modal ' + active}>
-                <div className='modal-background' onClick={() => props.closeModal()} />
-                <form className='modal-card' style={{ width: '80%', height: '80%' }} onSubmit={e => this.previewWidget(e)}>
-                    <header className='modal-card-head'>
-                        <p className='modal-card-title'>Create a new widget</p>
-                        <button className='delete' onClick={() => props.closeModal()} />
-                    </header>
-                    <section className='modal-card-body is-flex'>
-                        <WidgetCreationForm widgetInfo={this.state.widgetInfo} handleChange={e => this.handleChange(e)} />
-                        {widget}
-                    </section>
-                    <footer className='modal-card-foot is-flex-end'>
-                        <input className='button is-success' type="submit" value="Preview Widget" />
-                        <button className='button is-success' disabled={!enableAddWidgetButton} onClick={() => this.addWidgetToDashboard()}>
-                            Add Widget
-                        </button>
-                    </footer>
-                </form>
+    let widgetPreview = null;
+    let enableAddWidgetButton = false;
+    if (widget) {
+        widgetPreview = (
+            <div key='widgetPreview' className='widget-preview'>
+                <FormElement key='Title' label='Title'>
+                    <input name='Title' className='input' type='text' autoComplete="off"
+                        value={widgetInfo['Title'] || ''} onChange={onChange} />
+                </FormElement>
+                {React.createElement(widget.type, widget.props)}
             </div>
         );
+        enableAddWidgetButton = true;
     }
+
+    return (
+        <form onSubmit={previewWidget}>
+            <Modal
+                title='Create a new widget'
+                header={props.header}
+                body={[
+                    <WidgetCreationForm key='WidgetCreationForm' widgetInfo={widgetInfo} handleChange={onChange} />,
+                    widgetPreview
+                ]}
+                footer={[
+                    <input key='PreviewWidgetButton' className='button is-success' type="submit" value="Preview Widget" />,
+                    <button key='AddWidgetButton' className='button is-success' disabled={!enableAddWidgetButton} onClick={addWidget}>
+                        Add Widget
+                    </button>
+                ]}
+            />
+        </form>
+    );
 }
 
-function mapStateToProps(state) {
-    return {
-        games: state.items.games
-    };
-}
+function getDefaultTitle(widgetInfo) {
+    let dataSet = '';
+    switch (widgetInfo['Data Set']) {
+        case 'games':
+            dataSet = 'Games';
+            break;
+        case 'movies':
+            dataSet = 'Movies';
+            break;
+        default:
+    }
+    switch (widgetInfo['Chart Type']) {
+        case 'PieWidget': return `${dataSet} Pie Chart`;
+        case 'BarWidget': return `${dataSet} Bar Chart`;
+        default:
+    }
+    if (widgetInfo['Widget'])
+        return `${widgetInfo['Widget']} ${dataSet}`;
 
-export default connect(mapStateToProps)(WidgetCreationModal);
+    return '';
+}

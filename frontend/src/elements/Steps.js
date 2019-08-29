@@ -13,8 +13,9 @@ function Steps(props) {
             </li>
         );
     });
+    const style = { width: '120%' };
     return (
-        <ul className={'steps has-content-centered is-marginless ' + props.className}>
+        <ul className={'steps has-content-centered has-gaps is-marginless ' + props.className} style={style}>
             {stepElements}
         </ul>
     );

@@ -1,49 +1,55 @@
 import axios from 'axios';
 
-const baseUrl = 'http://localhost:3001/api';
+export default class ItemApi {
 
-function get(url, callback) {
-    return axios.get(url)
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
-}
+    constructor(endpoint) {
+        this.baseUrl = `http://localhost:3001/api${endpoint}`;
+    }
 
-export function getItems(requirements, callback) {
-    return axios.get(`${baseUrl}/items`, { params: requirements })
-        .then(response => callback(response.data))
-        .catch(err => console.log(err));
-};
+    /**
+     * Performs a GET request at the url
+     * @param {String} url 
+     * @param {Object} params 
+     */
+    get(url, params) {
+        return axios.get(url, { params })
+            .then(response => response.data)
+            .catch(err => console.log(err));
+    }
 
-export function createItem(newItem, callback) {
-    return axios.post(`${baseUrl}/items`, newItem)
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    getItems(requirements) {
+        return this.get(`${this.baseUrl}`, requirements);
+    };
 
-export function updateItem(id, update, callback) {
-    return axios.put(`${baseUrl}/items`, { data: { id, ...update } })
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    createItem(newItem, callback) {
+        return axios.post(`${this.baseUrl}`, newItem)
+            .catch(err => console.log(err));
+    }
 
-export function deleteItem(id, callback) {
-    return axios.delete(`${baseUrl}/items`, { data: { id } })
-        .then(() => callback())
-        .catch(err => console.log(err));
-}
+    updateItem(update, callback) {
+        return axios.put(`${this.baseUrl}`, update)
+            .catch(err => console.log(err));
+    }
 
-export function searchItem(title, callback) {
-    return get(`${baseUrl}/search/${title}`, callback); 
-}
+    deleteItem(id, callback) {
+        return axios.delete(`${this.baseUrl}/${id}`)
+            .catch(err => console.log(err));
+    }
 
-export function anticipatedGames(callback) {
-    return get(`${baseUrl}/anticipated-games`, callback); 
-}
+    searchItem(title) {
+        return this.get(`${this.baseUrl}/search/${title}`, {});
+    }
 
-export function highlyRated(callback) {
-    return get(`${baseUrl}/highly-rated-games`, callback); 
-}
+    anticipatedGames() {
+        return this.get(`${this.baseUrl}/anticipated`, {});
+    }
 
-export function recentlyReleased(callback) {
-    return get(`${baseUrl}/recently-released-games`, callback); 
+    popular() {
+        return this.get(`${this.baseUrl}/popular`, {});
+    }
+
+    recentlyReleased() {
+        return this.get(`${this.baseUrl}/recently-released`, {});
+    }
+
 }

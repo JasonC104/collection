@@ -1,42 +1,54 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route, Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Link, Switch } from "react-router-dom";
 import { withRouter } from "react-router";
-import { connect } from 'react-redux';
-import { Actions } from './actions';
 import Dashboard from './Dashboard';
 import GamesCollection from './GamesCollection';
 import MoviesCollection from './MoviesCollection';
-import * as ItemApi from './api/itemApi';
+import { GamesApi, MoviesApi } from './api';
 import './styles/main.scss';
 
-class Main extends Component {
-
-    componentDidMount() {
-        ItemApi.getItems({}, response => {
-            this.props.setGames(response.data);
-        });
+function Main() {
+    const [games, setGames] = useState([]);
+    const [movies, setMovies] = useState([]);
+    const [gamesFilters, setGamesFilters] = useState({});
+    const getGames = (filters) => {
+        if (filters) setGamesFilters(filters);
+        else filters = gamesFilters;
+        return GamesApi.getItems(filters).then(items => { setGames(items); return items; });
     }
+    const [moviesFilters, setMoviesFilters] = useState({});
+    const getMovies = (filters) => {
+        if (filters) setMoviesFilters(filters);
+        else filters = moviesFilters;
+        return MoviesApi.getItems(filters).then(items => { setMovies(items); return items; });
+    }
+    useEffect(() => {
+        GamesApi.getItems({}).then(setGames);
+        MoviesApi.getItems({}).then(setMovies);
+    }, []);
 
-    render() {
-        const NavBar = withRouter(NavBarComponent);
-        return (
-            <div className='main'>
-                <BrowserRouter>
-                    <div className='header'>
-                        <h1 className='title is-marginless'>Collection</h1>
-                        <NavBar />
-                    </div>
+    const NavBar = withRouter(NavBarComponent);
+    return (
+        <div className='main'>
+            <BrowserRouter>
+                <div className='header'>
+                    <h1 className='title is-marginless'>Collection</h1>
+                    <NavBar />
+                </div>
+                <Switch>
                     <Route path="/" exact render={props =>
-                        <Dashboard {...props} />
+                        <Dashboard {...props} getGames={getGames} />
                     } />
-                    <Route path="/games" render={props =>
-                        <GamesCollection />
+                    <Route path="/games" render={() =>
+                        <GamesCollection games={games} getGames={getGames} />
                     } />
-                    <Route path="/movies" component={MoviesCollection} />
-                </BrowserRouter>
-            </div>
-        );
-    }
+                    <Route path="/movies" render={() =>
+                        <MoviesCollection movies={movies} getMovies={getMovies} />
+                    } />
+                </Switch>
+            </BrowserRouter>
+        </div>
+    );
 }
 
 function NavBarComponent(props) {
@@ -60,10 +72,4 @@ function NavBarComponent(props) {
     );
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        setGames: (games) => dispatch(Actions.setGames(games))
-    };
-}
-
-export default connect(null, mapDispatchToProps)(Main);
+export default Main;

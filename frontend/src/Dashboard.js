@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import RGL, { WidthProvider } from "react-grid-layout";
-import { connect } from 'react-redux';
-import * as Storage from './api/localStorage';
-import { Actions } from './actions';
-import { ChartCreator, WidgetCreator, gameImageResize } from './helpers';
+import { Storage, WidgetsApi } from './api';
+import { ChartCreator, WidgetCreator } from './helpers';
 import { Icon } from './elements';
-import { WidgetCreationModal, ItemModal } from './modals';
+import { WidgetItemModal, WidgetCreationModal } from './modals';
 import './styles/dashboard.scss';
 
 const ResponsiveReactGridLayout = WidthProvider(RGL);
@@ -31,75 +29,61 @@ function getWidgetDefaultLayout(widgetInfo) {
 }
 
 
-class Dashboard extends Component {
+export default class Dashboard extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { layout: [], widgetsInfo: [], showWidgetCreationModal: false, widgetClick: false, widgetDrag: false };
+		this.state = {
+			layout: [],
+			widgetsInfo: [],
+			widgetClick: false,
+			widgetDrag: false,
+			widgets: [],
+			modalData: null
+		};
 	}
 
 	componentDidMount() {
 		this.setState({
 			layout: Storage.get('layout', []),
 			widgetsInfo: Storage.get('widgetsInfo', [])
-		}, () => this.calculateWidgetData());
-	}
-
-	componentDidUpdate(prevProps) {
-		// calculate widget data if data has changed
-		if (this.state.widgetsInfo && prevProps.games.length !== this.props.games.length) {
-			this.calculateWidgetData();
-		}
+		}, () => this.calculateWidgetData(this.state.widgetsInfo)
+			.then(widgets => this.setState({ widgets }))
+		);
 	}
 
 	getWidgetOnClick(widgetInfo) {
 		const widgetType = widgetInfo['Widget Type'];
 		if (widgetType === 'chart') {
-			return data => {
-				this.props.setGames(data.items);
-				this.props.history.push('/games');
-			}
+			return ids =>
+				this.props.getGames({ ids })
+					.then(() => this.props.history.push('/games'));
 		} else if (widgetType === 'news') {
 		} else {
-			return item => {
-				const modalItem = {
-					...item,
-					imageUrl: gameImageResize(item.imageUrl, 't_720p'),
-					platforms: item.platforms.toString(),
-					genres: item.genres.toString(),
-					themes: item.themes.toString()
-				}
-				const modalElements = [
-					{ key: 'summary', label: 'Description', type: 'text' },
-					{ key: 'genres', label: 'Genres', type: 'text' },
-					{ key: 'themes', label: 'Themes', type: 'text' },
-					{ key: 'platforms', label: 'Platforms', type: 'text' },
-					{ key: 'releaseDate', label: 'Release Date', type: 'text' },
-				];
-				this.props.showItemModal(modalItem, modalElements);
-			}
+			return item => this.setState({ modalData: { type: 'ItemModal', item, dataSet: widgetInfo['Data Set'] } });
 		}
 	}
 
-	async calculateWidgetData() {
-		if (!this.props.games) return;
-
-		const widgetsData = [];
-		for (let widgetInfo of this.state.widgetsInfo) {
-			const onClick = this.getWidgetOnClick(widgetInfo);;
-			if (widgetInfo['Widget Type'] === 'chart') {
-				const dataset = this.props[widgetInfo['Data Set']];
-				widgetsData.push(ChartCreator.createWidgetData(dataset, widgetInfo, onClick));
-			} else if (widgetInfo['Widget Type'] === 'news') {
-			} else {
-				widgetsData.push(await WidgetCreator.createItemList(widgetInfo, onClick));
-			}
-		}
-		this.props.setWidgetsData(widgetsData);
+	calculateWidgetData(widgetsInfo) {
+		return WidgetsApi.getWidgetsData(widgetsInfo).then(widgetsData => {
+			return widgetsData.map(widgetData => {
+				const onClick = this.getWidgetOnClick(widgetData);
+				switch (widgetData['Widget Type']) {
+					case 'chart':
+						return ChartCreator.createWidgetData(widgetData, onClick);
+					case 'news':
+						return null;
+					case 'other':
+						return WidgetCreator.createItemList(widgetData, onClick);
+					default:
+						return null;
+				}
+			});
+		});
 	}
 
 	onLayoutChange(layout) {
 		// Only save the layout changes when there are widgets on the dashboard
-		if (this.props.widgetsData.length !== 0) {
+		if (this.state.widgets.length !== 0) {
 			Storage.save('layout', layout);
 			this.setState({ layout });
 		}
@@ -112,33 +96,34 @@ class Dashboard extends Component {
 		this.setState({ layout });
 	}
 
-	addWidget(widgetInfo, widgetData) {
-		widgetData.props.onClick = this.getWidgetOnClick(widgetInfo);
-		this.props.addWidgetData(widgetData);
+	addWidget(widgetInfo, widget) {
+		widget.props.onClick = this.getWidgetOnClick(widgetInfo);
 
-		const widgetsInfo = [...this.state.widgetsInfo];
-		widgetsInfo.push(widgetInfo);
+		const widgetsInfo = [...this.state.widgetsInfo, widgetInfo];
+		const widgets = [...this.state.widgets, widget];
 
 		const newLayout = { i: this.getNextLayoutKey(), ...getWidgetDefaultLayout(widgetInfo) };
 		const layout = [...this.state.layout, newLayout];
 
 		Storage.save('layout', layout);
 		Storage.save('widgetsInfo', widgetsInfo);
-		this.setState({ widgetsInfo, layout });
+		this.setState({ widgetsInfo, layout, widgets, modalData: null });
 	}
 
 	removeWidget(layoutKey, widgetIndex) {
 		const layoutIndex = this.state.layout.findIndex(e => e.i === layoutKey);
-		const layout = this.state.layout.splice(layoutIndex, 1);
+		const layout = [...this.state.layout];
+		layout.splice(layoutIndex, 1);
 
-		this.props.removeWidgetData(widgetIndex);
+		const widgets = [...this.state.widgets];
+		widgets.splice(widgetIndex, 1);
 
 		const widgetsInfo = [...this.state.widgetsInfo];
 		widgetsInfo.splice(widgetIndex, 1);
 
 		Storage.save('layout', layout);
 		Storage.save('widgetsInfo', widgetsInfo);
-		this.setState({ layout, widgetsInfo });
+		this.setState({ layout, widgetsInfo, widgets });
 	}
 
 	getNextLayoutKey() {
@@ -147,10 +132,6 @@ class Dashboard extends Component {
 
 		const nextLayoutKey = parseInt(currentLayout[currentLayout.length - 1].i) + 1;
 		return nextLayoutKey.toString();
-	}
-
-	toggleModal(modal) {
-		this.setState({ [modal]: !this.state[modal] });
 	}
 
 	startWidgetDrag() {
@@ -180,9 +161,9 @@ class Dashboard extends Component {
 
 	render() {
 		let gridElements = [];
-		if (this.props.widgetsData.length !== 0) {
+		if (this.state.widgets.length !== 0) {
 			gridElements = this.state.layout.map((layout, index) => {
-				const widgetData = this.props.widgetsData[index];
+				const widgetData = this.state.widgets[index];
 				const props = {
 					...widgetData.props,
 					width: layout.w * 30,
@@ -193,12 +174,23 @@ class Dashboard extends Component {
 
 				return (
 					<div key={layout.i} data-grid={layout} className='has-background-light'>
-						<p className='title is-6 is-marginless has-text-centered has-default-cursor'>{this.state.widgetsInfo[index].Title}</p>
+						<p className='title is-6 is-marginless has-text-centered has-default-cursor'>
+							{this.state.widgetsInfo[index].Title || ''}
+						</p>
 						{React.createElement(widgetData.type, props)}
 						<button className="widget-delete delete is-small" onClick={() => this.removeWidget(layout.i, index)} />
 					</div>
 				);
 			});
+		}
+
+		let modal = null;
+		if (this.state.modalData) {
+			const modalData = this.state.modalData;
+			if (modalData.type === 'ItemModal')
+				modal = <WidgetItemModal item={modalData.item} schema={getItemModalSchema(modalData.dataSet)} />;
+			else if (modalData.type === 'WidgetCreationModal')
+				modal = <WidgetCreationModal calculateWidgetData={this.calculateWidgetData.bind(this)} addWidget={this.addWidget.bind(this)} />;
 		}
 
 		return (
@@ -215,42 +207,31 @@ class Dashboard extends Component {
 				>
 					{gridElements}
 				</ResponsiveReactGridLayout>
-				<div className='new-item-btn button is-link is-large' onClick={() => this.toggleModal('showWidgetCreationModal')}>
+				<div className='new-item-btn button is-link is-large' onClick={() => this.setState({ modalData: { type: 'WidgetCreationModal' } })}>
 					<Icon icon='fas fa-plus fa-lg' />
 				</div>
-				<WidgetCreationModal active={this.state.showWidgetCreationModal} addWidget={(info, data) => this.addWidget(info, data)}
-					closeModal={() => this.toggleModal('showWidgetCreationModal')} />
-				<ItemModal footer={getItemModalFooter()} />
+				{modal}
 			</div>
 		);
 	}
 }
 
-function getItemModalFooter() {
-	return (
-		<div>
-			<button className='button is-success'>
-				<p>Add to Wishlist</p>
-			</button>
-		</div>
-	);
+const gameSchema = [
+	{ type: 'text', key: 'summary', label: 'Description', readonly: true },
+	{ type: 'list', key: 'genres', label: 'Genres', readonly: true },
+	{ type: 'list', key: 'themes', label: 'Themes', readonly: true },
+	{ type: 'list', key: 'platforms', label: 'Platforms', readonly: true },
+	{ type: 'text', key: 'releaseDate', label: 'Release Date', readonly: true },
+];
+const movieSchema = [
+	{ type: 'text', key: 'summary', label: 'Description', readonly: true },
+	{ type: 'list', key: 'genres', label: 'Genres', readonly: true },
+	{ type: 'text', key: 'releaseDate', label: 'Release Date', readonly: true },
+];
+function getItemModalSchema(dataSet) {
+	switch (dataSet) {
+		case 'games': return gameSchema;
+		case 'movies': return movieSchema;
+		default: return [];
+	}
 }
-
-function mapStateToProps(state) {
-	return {
-		games: state.items.games,
-		widgetsData: state.widgetsData
-	};
-}
-
-function mapDispatchToProps(dispatch) {
-	return {
-		setGames: games => dispatch(Actions.setFilteredGames(games)),
-		addWidgetData: widgetData => dispatch(Actions.addWidgetData(widgetData)),
-		setWidgetsData: widgetsData => dispatch(Actions.setWidgetsData(widgetsData)),
-		removeWidgetData: index => dispatch(Actions.removeWidgetData(index)),
-		showItemModal: (item, elements) => dispatch(Actions.showItemModal(item, elements)),
-	};
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

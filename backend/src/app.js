@@ -1,293 +1,47 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const models = require('./data');
-const IgdbApi = require('./igdb');
-const csvParser = require('./csv-parser');
+const GamesController = require('./controllers/gamesController');
+const MoviesController = require('./controllers/moviesController');
+const WidgetsController = require('./controllers/widgetsController');
 
-const API_PORT = 3001;
 const app = express();
-app.use(cors());
 const router = express.Router();
 
-function connectToDatabase(dbRoute) {
-	mongoose.connect(dbRoute, { useNewUrlParser: true, useFindAndModify: false });
-	const db = mongoose.connection;
-	db.once('open', () => console.log('connected to the database'));
-	db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-}
-
-// connects to the database
-if (process.env.NODE_ENV.trim() == 'production') {
-	connectToDatabase(process.env.DB_ROUTE_PROD);
-} else {
-	connectToDatabase(process.env.DB_ROUTE_DEV);
-}
-
-// (optional) only made for logging and
-// bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-function convertDateToString(date) {
-	return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
-}
-
-function generateItemViewModel(e) {
-	const purchaseDate = convertDateToString(e.purchaseDate);
-	return {
-		id: e._id,
-		title: e.title,
-		platform: e.platform,
-		cost: e.cost,
-		purchaseDate,
-		type: e.type,
-		rating: e.rating,
-		completed: e.completed,
-		gift: e.gift,
-		links: e.links,
-		igdbId: e.igdb.id,
-		imageUrl: `https://images.igdb.com/igdb/image/upload/t_cover_uniform/${e.igdb.imageHash}.jpg`
-	};
-}
-
-// this is our get method
-// this method fetches all available data in our database
-router.get('/items', async (req, res) => {
-	const query = req.query;
-	const requirements = {};
-	let sortRequirements = { purchaseDate: -1 };
-
-	// search
-	if (query.search) {
-		requirements.title = new RegExp(query.search, 'i');
-	}
-
-	// filter
-	if (query.platform && Array.isArray(query.platform)) {
-		let platforms = [];
-		await models.Game.distinct('platform', (err, data) => {
-			if (err) return res.json({ error: err });
-			platforms = data;
-		});
-		// if query.platform is a valid list of platforms
-		const hasInvalidPlatform = query.platform.some(p => platforms.indexOf(p) === -1);
-		if (!hasInvalidPlatform) {
-			requirements.platform = { $in: query.platform };
-		}
-	}
-
-	// sort
-	if (query.sort) {
-		const order = (query.order === 'desc') ? -1 : 1;
-		switch (query.sort) {
-			case 'date':
-				sortRequirements = { purchaseDate: order };
-				break;
-			case 'title':
-				sortRequirements = { title: order };
-				break;
-			case 'rating':
-				sortRequirements = { rating: order };
-				break;
-		}
-	}
-
-	models.Game.find(requirements)
-		.sort(sortRequirements)
-		.exec((err, data) => {
-			if (err) return res.json({ error: err });
-
-			const result = data.map(e => generateItemViewModel(e));
-			return res.json({ data: result });
-		});
-});
-
-function parseIgdbGame(e) {
-	const data = { igdbId: e.id };
-	data.title = e.name || '';
-	data.summary = e.summary || '';
-	data.imageUrl = (e.cover && e.cover.url) ? e.cover.url : '';
-	data.releaseDate = (e.first_release_date) ? convertDateToString(new Date(e.first_release_date * 1000)) : '';
-	data.platforms = (e.platforms) ? e.platforms.map(p => p.abbreviation ? p.abbreviation : p.name) : [];
-	data.genres = (e.genres) ? e.genres.map(g => g.name) : [];
-	data.themes = (e.themes) ? e.themes.map(t => t.name) : [];
-	return data;
-}
-
-router.get('/search/:title', (req, res) => {
-	IgdbApi.searchGame(req.params.title).then(response => {
-		const data = [];
-		response.data.sort((a, b) => b.popularity - a.popularity).forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl && d.platforms) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/anticipated-games', (req, res) => {
-	IgdbApi.anticipatedGames().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/highly-rated-games', (req, res) => {
-	IgdbApi.highlyRated().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/recently-released-games', (req, res) => {
-	IgdbApi.recentlyReleased().then(response => {
-		const data = [];
-		response.data.forEach(e => {
-			const d = parseIgdbGame(e);
-			if (d.imageUrl) {
-				data.push({
-					igdbId: d.igdbId,
-					imageUrl: d.imageUrl,
-					title: d.title,
-					platforms: d.platforms,
-					summary: d.summary,
-					releaseDate: d.releaseDate,
-					genres: d.genres,
-					themes: d.themes
-				});
-			}
-		});
-		return res.json(data);
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-});
-
-router.get('/items/csv', (req, res) => {
-	models.Game.find().sort({ purchaseDate: 1 }).exec((err, data) => {
-		if (err) return res.json({ error: err });
-
-		const csv = csvParser.itemDataToCsv(data);
-		res.attachment('item-data.csv');
-		return res.status(200).type('text/csv').send(csv);
-	});
-});
-
-router.put("/items", (req, res) => {
-	const body = req.body.data;
-	const update = {};
-	if (body.rating !== undefined) update.rating = body.rating;
-	if (body.completed !== undefined) update.completed = body.completed;
-	if (body.gift !== undefined) update.gift = body.gift;
-
-	if (Object.keys(update).length > 0) {
-		models.Game.findOneAndUpdate({ _id: body.id }, update, err => {
-			if (err) return res.send(err);
-			console.log(`updated ${body.id}`);
-			console.log(update);
-			return res.json({ success: true });
-		});
-	} else {
-		return res.send('No update');
-	}
-});
-
-router.delete('/items', (req, res) => {
-	models.Game.findOneAndDelete({ _id: req.body.id }, err => {
-		if (err) return res.send(err);
-		console.log(`deleted ${req.body.id}`);
-		return res.json({ success: true });
-	});
-});
-
-router.post('/items', async (req, res) => {
-	const item = req.body;
-	let imageHash;
-	await IgdbApi.getGameCover(item.igdbId).then(response => {
-		imageHash = response.data[0].cover.image_id
-	}).catch(err => {
-		console.log(err);
-		return res.json(err);
-	});
-
-	const game = new models.Game({
-		title: item.title,
-		platform: item.platform,
-		cost: item.cost,
-		purchaseDate: item.purchaseDate,
-		type: item.type,
-		completed: item.completed,
-		gift: item.gift,
-		rating: item.rating,
-		links: item.links,
-		igdb: {
-			id: item.igdbId,
-			imageHash
-		}
-	});
-
-	game.save((err, doc) => {
-		if (err) {
-			console.log(err);
-			return res.json({ error: err });
-		}
-		console.log(doc);
-		return res.json({ success: true });
-	});
-});
-
-// append /api for our http requests
+app.use(cors());
 app.use('/api', router);
 
-// launch our backend into a port
-app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
+/////////////// Games ///////////////
+
+router.get('/games', GamesController.getCollection);
+router.post('/games', GamesController.addToCollection);
+router.put("/games", GamesController.updateItemInCollection);
+router.delete('/games/:id', GamesController.deleteFromCollection);
+
+router.get('/games/search/:title', GamesController.search);
+
+router.get('/games/anticipated', GamesController.getAnticipated);
+router.get('/games/popular', GamesController.getPopular);
+router.get('/games/recently-released', GamesController.getRecentlyReleased);
+
+router.get('/games/csv', GamesController.exportToCsv);
+
+/////////////// Movies ///////////////
+
+router.get('/movies', MoviesController.getCollection);
+router.post('/movies', MoviesController.addToCollection);
+router.put("/movies", MoviesController.updateItemInCollection);
+router.delete('/movies/:id', MoviesController.deleteFromCollection);
+
+router.get('/movies/search/:title', MoviesController.search);
+
+router.get('/movies/anticipated', MoviesController.getAnticipated);
+router.get('/movies/popular', MoviesController.getPopular);
+router.get('/movies/recently-released', MoviesController.getRecentlyReleased);
+
+/////////////// Widgets ///////////////
+router.post('/widgets', WidgetsController.getWidgetsData);
+
+module.exports = app;

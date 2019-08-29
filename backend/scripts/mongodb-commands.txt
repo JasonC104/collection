@@ -1,0 +1,10 @@
+
+Copy a collection
+    db.games.find().forEach( function(x){db.gamesTest.insert(x)} );
+
+Rename column
+    db.gamesTest.updateMany({},{ $rename: {"igdb.id": "igdbId"} });
+
+Delete column
+    db.gamesTest.updateMany({}, { $unset: { "igdb" : "" } });
+
