@@ -13,20 +13,20 @@
   "author": "Jason C",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "csvtojson": "^2.0.8",
-    "date-fns": "^2.0.1",
-    "dotenv": "^8.0.0",
-    "express": "^4.16.4",
-    "json2csv": "^4.5.1",
-    "mongoose": "^5.5.8"
+    "csvtojson": "^2.0.10",
+    "date-fns": "^2.1.0",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "json2csv": "^4.5.2",
+    "mongoose": "^5.6.13"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
-    "mongodb-memory-server-core": "^5.1.10",
+    "mongodb-memory-server-core": "^5.2.1",
     "nock": "^10.0.6",
     "supertest": "^4.0.2"
   }
