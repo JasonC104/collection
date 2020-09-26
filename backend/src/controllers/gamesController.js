@@ -1,4 +1,4 @@
-const Api = require('../api/igdb');
+const Api = require('../api/igdbV4');
 const csvParser = require('../csv-parser');
 const Game = require('../db/models/game');
 const convertDateToString = require('../utils').convertDateToString;
@@ -12,12 +12,15 @@ Game.find({})
         if (err) { console.log(err); return; }
 
         igdbCache = {};
-        while (data.length > 0) {
-            const apiIds = data.splice(0, 10).map(e => e.apiId).join(',');
-            Api.getItem(apiIds)
-                .then(data => data.forEach(e => igdbCache[e.apiId] = e))
-                .catch(err => console.log(err));
-        }
+        Api.authenticate()
+            .then(() => {
+                while (data.length > 0) {
+                    const apiIds = data.splice(0, 10).map(e => e.apiId).join(',');
+                    Api.getItem(apiIds)
+                        .then(data => data.forEach(e => igdbCache[e.apiId] = e))
+                        .catch(err => console.log(err));
+                }
+            });
     });
 
 function parseDatabaseGame(e) {
