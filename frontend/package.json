@@ -16,7 +16,7 @@
     "react-rating": "^1.7.2",
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1",
+    "react-scripts": "3.4.4",
     "recharts": "^1.7.1",
     "redux": "^4.0.4"
   },
